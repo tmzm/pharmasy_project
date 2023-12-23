@@ -9,11 +9,13 @@ class Favorite extends Model
 {
     use HasFactory;
 
+    protected $with = ['product'];
+
     protected $guarded = [];
 
     public function product()
     {
-        return $this->hasOne(Product::class,'product_id');
+        return $this->belongsTo(Product::class);
     }
 
     public function user()

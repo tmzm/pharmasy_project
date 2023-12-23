@@ -30,7 +30,7 @@ class OrderController extends Controller
         if($request->user()->role == 'user'){
             $orders = Order::where('user_id',$request->user()->id)->get();
 
-            if($orders)
+            if(count($orders))
                  return $this->apiResponse(200,'ok',$orders);
 
             return $this->apiResponse(404,'No data found');
@@ -41,7 +41,7 @@ class OrderController extends Controller
                 $query->where('warehouse_id', $warehouseId);
             })->get();
 
-            if($orders)
+            if(count($orders))
                 return $this->apiResponse(200,'ok',$orders);
 
             return $this->apiResponse(404,'No data found');

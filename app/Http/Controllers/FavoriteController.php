@@ -22,7 +22,7 @@ class FavoriteController extends Controller
     {
         $favorites = Favorite::latest()->where('user_id',$request->user()->id)->get();
 
-        if($favorites)
+        if(count($favorites))
             return $this->apiResponse(200,'ok',$favorites);
 
         return $this->apiResponse(404,'Not found');
@@ -55,10 +55,7 @@ class FavoriteController extends Controller
      */
     public function show(Request $request,$favorite_id): Response
     {
-        $favorite = Favorite::find($favorite_id);
-
-        if($favorite)
-            $favorite = $favorite->firstWhere('user_id',$request->user()->id);
+        $favorite = Favorite::find($favorite_id)?->firstWhere('user_id',$request->user()->id);
 
         if($favorite)
             return $this->apiResponse(200,'ok',$favorite);

@@ -19,7 +19,7 @@ class CategoryController extends Controller
     {
         $categories = Category::get();
 
-        if($categories)
+        if(count($categories))
             return $this->apiResponse(200,'ok',$categories);
 
         return $this->apiResponse(404,'Not found');

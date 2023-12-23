@@ -28,7 +28,7 @@ class ProductController extends Controller
 
         $products = Product::latest()->filter($filters,$warehouse)->get();
 
-        if($products)
+        if(count($products))
             return $this->apiResponse(200,'ok',$products);
 
         return $this->apiResponse(404,'Not found');
