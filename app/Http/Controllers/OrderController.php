@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReturnMessages;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -27,25 +28,20 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
-        if($request->user()->role == 'user'){
+        if($request->user()->role == 'user')
             $orders = Order::where('user_id',$request->user()->id)->get();
-
-            if(count($orders))
-                 return $this->apiResponse(200,'ok',$orders);
-
-            return $this->apiResponse(404,'No data found');
-        }else{
+        else{
             $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
 
             $orders = Order::whereHas('product', function ($query) use ($warehouseId) {
                 $query->where('warehouse_id', $warehouseId);
             })->get();
-
-            if(count($orders))
-                return $this->apiResponse(200,'ok',$orders);
-
-            return $this->apiResponse(404,'No data found');
         }
+
+        if(count($orders))
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$orders);
+
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -60,14 +56,14 @@ class OrderController extends Controller
         $product = Product::find($product_id);
 
         if(!$product)
-            return $this->apiResponse(404,'Product not found');
+            return $this->apiResponse(404,ReturnMessages::NotFound->value);
 
         $validator = validator($request->all(),[
            'quantity' => 'required',
         ]);
 
         if($validator->fails())
-            return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
 
@@ -79,13 +75,19 @@ class OrderController extends Controller
             $order = Order::find($request['order_id']);
         }
 
+        if(!$order)
+            return $this->apiResponse(404,ReturnMessages::NotFound->value);
+
         OrderItem::create([
             'product_id' => $product_id,
             'order_id' => $order->id,
             'quantity' => $data['quantity']
         ]);
 
-        return $this->apiResponse(200,'ok',$order);
+        $product->quantity -= 1;
+        $product->save();
+
+        return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
     }
 
     /**
@@ -99,9 +101,9 @@ class OrderController extends Controller
         $order = Order::where('id',$order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order)
-            return $this->apiResponse(200,'ok',$order);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -122,7 +124,7 @@ class OrderController extends Controller
             ]);
 
             if($validator->fails())
-                return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+                return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
             $data = $validator->validated();
 
@@ -136,7 +138,7 @@ class OrderController extends Controller
                 ]);
 
                 if($validator->fails())
-                    return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+                    return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
                 $data = $validator->validated();
 
@@ -145,10 +147,10 @@ class OrderController extends Controller
 
             $order = Order::find($order_id);
 
-            return $this->apiResponse(201,'ok',$order);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
         }
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -162,11 +164,17 @@ class OrderController extends Controller
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order) {
+            $products = $order->order_items()->select('product');
+            foreach ($products as $p){
+                $p->quantity++;
+                $p->save();
+            }
+
             $order->delete();
 
-            return $this->apiResponse(200,'ok');
+            return $this->apiResponse(200,ReturnMessages::Ok->value);
         }
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

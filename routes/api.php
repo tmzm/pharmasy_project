@@ -30,9 +30,9 @@ Route::group([
     Route::patch('user/update',[UserController::class,'update']);
 
     Route::get('user',[UserController::class,'show']);
-});
 
-Route::post('notify',[NotificationController::class,'create']);
+    Route::post('notify',[NotificationController::class,'create']);
+});
 
 Route::post('register',[UserController::class,'create']);
 

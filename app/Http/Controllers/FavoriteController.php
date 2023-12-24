@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReturnMessages;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Foundation\Application;
@@ -23,9 +24,9 @@ class FavoriteController extends Controller
         $favorites = Favorite::latest()->where('user_id',$request->user()->id)->get();
 
         if(count($favorites))
-            return $this->apiResponse(200,'ok',$favorites);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorites);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -42,9 +43,9 @@ class FavoriteController extends Controller
         ]);
 
         if($favorite)
-            return $this->apiResponse(200,'ok',$favorite);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorite);
 
-        return $this->apiResponse(500,'Error');
+        return $this->apiResponse(500,ReturnMessages::Error->value);
     }
 
     /**
@@ -58,9 +59,9 @@ class FavoriteController extends Controller
         $favorite = Favorite::find($favorite_id)?->firstWhere('user_id',$request->user()->id);
 
         if($favorite)
-            return $this->apiResponse(200,'ok',$favorite);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorite);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -75,9 +76,9 @@ class FavoriteController extends Controller
 
         if($favorite) {
             $favorite->delete();
-            return $this->apiResponse(200, 'ok');
+            return $this->apiResponse(200, ReturnMessages::Ok->value);
         }
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

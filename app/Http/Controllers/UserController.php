@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReturnMessages;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -29,7 +30,7 @@ class UserController extends Controller
         ]);
 
         if($validator->fails())
-            return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
 
@@ -41,7 +42,7 @@ class UserController extends Controller
             ]);
 
             if($validatorWarehouseOwner->fails())
-                return $this->apiResponse(500,'validate has errors',null,null,$validatorWarehouseOwner->errors());
+                return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validatorWarehouseOwner->errors());
 
             $d = $validatorWarehouseOwner->validated();
 
@@ -54,10 +55,10 @@ class UserController extends Controller
 
             try{
                 if (request()->hasfile('image')) {
-                    $d['image'] = request()->file('image')->store('public/warehouses');
+                    $d['image'] = '/storage/' . substr(request()->file('image')->store('public/warehouses') , 7);
                 }
             }catch(Exception $e){
-                return $this->apiResponse(500,null,null,null,$e);
+                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
             }
 
             $warehouse = Warehouse::create([
@@ -69,7 +70,7 @@ class UserController extends Controller
 
             $token = $user->createToken('UserToken')->accessToken;
 
-            return $this->apiResponse(200,'Warehouse created',['user'=>$user,'warehouse'=>$warehouse],$token);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,['user'=>$user,'warehouse'=>$warehouse],$token);
 
         }
 
@@ -82,7 +83,7 @@ class UserController extends Controller
 
         $token = $user->createToken('UserToken')->accessToken;
 
-        return $this->apiResponse(200,'User created',$user,$token);
+        return $this->apiResponse(200,ReturnMessages::Ok->value,$user,$token);
     }
 
     /**
@@ -99,21 +100,21 @@ class UserController extends Controller
         ]);
 
         if($validator->fails())
-            return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
 
         $user = User::firstWhere('role','=',$data['role']);
 
         if(!$user)
-            return $this->apiResponse(401, 'invalid information');
+            return $this->apiResponse(401, ReturnMessages::UnAuth->value);
 
 
         if (auth()->attempt($data)) {
             $token = auth()->user()->createToken('UserToken')->accessToken;
-            return $this->apiResponse(200,'User login',auth()->user(),$token);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,auth()->user(),$token);
         } else
-            return $this->apiResponse(401,'invalid information');
+            return $this->apiResponse(401,ReturnMessages::UnAuth->value);
 
         return $this->apiResponse(200,'ok',auth()->user());
     }
@@ -130,7 +131,7 @@ class UserController extends Controller
         ]);
 
         if($validator->fails())
-            return $this->apiResponse(500,'validate has errors',null,null,$validator->errors());
+            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
 
@@ -146,29 +147,29 @@ class UserController extends Controller
             ]);
 
             if($validatorWarehouseOwner->fails())
-                return $this->apiResponse(500,'validate has errors',null,null,$validatorWarehouseOwner->errors());
+                return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validatorWarehouseOwner->errors());
 
             $d = $validatorWarehouseOwner->validated();
 
             try{
                 if (request()->hasfile('image')) {
-                    $d['image'] = request()->file('image')->store('public/warehouses');
+                    $d['image'] = '/storage/' . substr(request()->file('image')->store('public/warehouses') , 7);
                 }
             }catch(Exception $e){
-                return $this->apiResponse(500,null,null,null,$e);
+                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
             }
 
             $user->update($data);
 
             $warehouse->update($d);
 
-            return $this->apiResponse(200,'Warehouse updated',['user'=>$user,'warehouse'=>$warehouse]);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,['user'=>$user,'warehouse'=>$warehouse]);
 
         }
 
         $user->update($data);
 
-        return $this->apiResponse(200,'User updated',$user);
+        return $this->apiResponse(200,ReturnMessages::Ok->value,$user);
     }
 
     /**
@@ -179,7 +180,7 @@ class UserController extends Controller
     {
         $request->user()->token()->revoke();
 
-        return $this->apiResponse(200,'ok');
+        return $this->apiResponse(200,ReturnMessages::Ok->value);
     }
 
     /**
@@ -189,8 +190,8 @@ class UserController extends Controller
     public function show(Request $request): Response
     {
         if($request->user()->role == 'user')
-             return $this->apiResponse(200,'ok',$request->user());
+             return $this->apiResponse(200,ReturnMessages::Ok->value,$request->user());
 
-        return $this->apiResponse(200,'ok',['user'=>$request->user(),'warehouse'=>Warehouse::firstWhere('user_id',$request->user()->id)]);
+        return $this->apiResponse(200,ReturnMessages::Ok->value,['user'=>$request->user(),'warehouse'=>Warehouse::firstWhere('user_id',$request->user()->id)]);
     }
 }

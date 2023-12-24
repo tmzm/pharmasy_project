@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReturnMessages;
 use App\Models\Category;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -20,8 +21,8 @@ class CategoryController extends Controller
         $categories = Category::get();
 
         if(count($categories))
-            return $this->apiResponse(200,'ok',$categories);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$categories);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

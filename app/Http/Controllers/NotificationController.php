@@ -54,6 +54,7 @@ class NotificationController extends Controller
 
         curl_close($ch);
 
+        return $this->apiResponse(200,'ok',$result);
     }
 
     /**

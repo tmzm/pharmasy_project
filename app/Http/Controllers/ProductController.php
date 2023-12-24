@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReturnMessages;
 use App\Models\Product;
 use App\Models\Warehouse;
 use Exception;
@@ -19,19 +20,21 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $filters = request(['search', 'category', 'warehouse']);
+        $filters = request(['search', 'category', 'warehouse_id']);
 
-        if($request->user()->role == 'user')
-            $warehouse = request('warehouse');
-        else
-            $warehouse = Warehouse::where('user_id',$request->user()->id)->first()->name;
+        if ($request->user()->role == 'user')
+            $warehouse_id = request('warehouse_id');
+        else {
+            $products = Warehouse::firstWhere('user_id',$request->user()->id)->products;
+            return $this->apiResponse(200, ReturnMessages::Ok->value, $products);
+        }
 
-        $products = Product::latest()->filter($filters,$warehouse)->get();
+        $products = Product::filter($filters,$warehouse_id)->latest()->get();
 
         if(count($products))
-            return $this->apiResponse(200,'ok',$products);
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$products);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
 
@@ -55,7 +58,7 @@ class ProductController extends Controller
         ]);
 
         if($validator->fails())
-            return $this->apiResponse(500,'validate has error',null,null,$validator->errors());
+            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
 
@@ -63,15 +66,15 @@ class ProductController extends Controller
 
         try{
             if (request()->hasfile('image')) {
-                $data['image'] = request()->file('image')->store('public/products');
+                $data['image'] = '/storage/' . substr(request()->file('image')->store('public/products') , 7);
             }
         }catch(Exception $e){
-            return $this->apiResponse(500,$e);
+            return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
         }
 
         $product = Product::create($data);
 
-        return $this->apiResponse(200, 'ok', $product);
+        return $this->apiResponse(200, ReturnMessages::Ok->value, $product);
     }
 
 
@@ -92,9 +95,9 @@ class ProductController extends Controller
             )->first();
 
         if($product)
-            return $this->apiResponse(200,'ok',$product->first());
+            return $this->apiResponse(200,ReturnMessages::Ok->value,$product);
 
-        return $this->apiResponse(404,'Not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 
 
@@ -106,7 +109,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $product_id): Response
     {
-        $product = Warehouse::where('user_id',$request->user()->id)->first()->products->where('id',$product_id)->first();
+        $product = Warehouse::firstWhere('user_id',$request->user()->id)->products->firstWhere('id',$product_id);
 
         if($product) {
             $validator = validator($request->all(),[
@@ -121,23 +124,23 @@ class ProductController extends Controller
             ]);
 
             if($validator->fails())
-                return $this->apiResponse(500,'validate has error',null,null,$validator->errors());
+                return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
             $data = $validator->validated();
 
             try{
                 if (request()->hasfile('image')) {
-                    $data['image'] = request()->file('image')->store('public/products');
+                    $data['image'] = '/storage/' . substr(request()->file('image')->store('public/products') , 7);
                 }
             }catch(Exception $e){
-                return $this->apiResponse(500,$e);
+                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
             }
 
             $product->update($data);
 
-            return $this->apiResponse(200, 'ok', $product);
+            return $this->apiResponse(200, ReturnMessages::Ok->value, $product);
         }
-        return $this->apiResponse(404,'not found');
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
 
     }
 
@@ -149,14 +152,14 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $product_id): Response
     {
-        $product = Warehouse::where('user_id',$request->user()->id)->first()->products->where('id',$product_id)->first();
+        $product = Warehouse::firsWhere('user_id',$request->user()->id)->products->firstWhere('id',$product_id);
 
         if($product) {
             $product->delete();
 
-            return $this->apiResponse(200, 'ok', null);
+            return $this->apiResponse(200, ReturnMessages::Ok->value);
         }
 
-        return $this->apiResponse(404,'not found',null);
+        return $this->apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

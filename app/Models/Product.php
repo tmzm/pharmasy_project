@@ -19,7 +19,7 @@ class Product extends Model
      * @param array $filters
      * @param string $warehouse
      */
-    public function scopeFilter($query, array $filters,string $warehouse){
+    public function scopeFilter($query, array $filters,string $warehouse_id){
 
         if($filters['search'] ?? false){
 
@@ -42,11 +42,11 @@ class Product extends Model
 
         }
 
-        if($warehouse ?? false){
+        if($warehouse_id ?? false){
 
             $query->whereHas('warehouse', fn ($query)
 
-            => $query->where('name',$warehouse)
+            => $query->where('id',$warehouse_id)
 
             );
 
