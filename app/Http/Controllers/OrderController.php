@@ -53,13 +53,8 @@ class OrderController extends Controller
      */
     public function create(Request $request, $product_id): Response
     {
-        $product = Product::find($product_id);
-
-        if(!$product)
-            return $this->apiResponse(404,ReturnMessages::NotFound->value);
-
         $validator = validator($request->all(),[
-           'quantity' => 'required',
+           'products' => 'required',
         ]);
 
         if($validator->fails())
@@ -67,25 +62,21 @@ class OrderController extends Controller
 
         $data = $validator->validated();
 
-        if(!$request['order_id']){
-            $order = Order::create([
-                'user_id' => $request->user()->id
-            ]);
-        }else{
-            $order = Order::find($request['order_id']);
-        }
-
-        if(!$order)
-            return $this->apiResponse(404,ReturnMessages::NotFound->value);
-
-        OrderItem::create([
-            'product_id' => $product_id,
-            'order_id' => $order->id,
-            'quantity' => $data['quantity']
+        $order = Order::create([
+            'user_id' => $request->user()->id
         ]);
 
-        $product->quantity -= 1;
-        $product->save();
+        foreach ($data['products'] as $p) {
+            OrderItem::create([
+                'product_id' => $p['id'],
+                'order_id' => $order->id,
+                'quantity' => $p['quantity']
+            ]);
+
+            $pr = Product::find($p['id']);
+            $pr->quantity -= 1;
+            $pr->save();
+        }
 
         return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
     }
@@ -113,44 +104,28 @@ class OrderController extends Controller
      * @return Response
      * @throws ValidationException
      */
-    public function update(Request $request,$order_id): Response
+    public function update(Request $request, $order_id): Response
     {
         $order = Order::find($order_id);
 
-        if($order) {
-            $validator = validator($request->all(),[
-                'status' => '',
-                'payment_status' => ''
+        if(!$order)
+            return $this->apiResponse(404,ReturnMessages::NotFound->value);
+
+        $order->update([
+            'status' => $request['status'],
+            'payment_status' => $request['payment_status']
+        ]);
+
+        foreach ($request['products'] as $p) {
+            $orderItem = OrderItem::where('product_id',$p['id']);
+            $orderItem->update([
+                'quantity' => $p['quantity']
             ]);
-
-            if($validator->fails())
-                return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
-
-            $data = $validator->validated();
-
-            $order->update($data);
-
-            if($request['order_item_id']){
-                $order_item = OrderItem::firstWhere('id',$request['order_item_id']);
-
-                $validator = validator($request->all(),[
-                    'quantity' => ''
-                ]);
-
-                if($validator->fails())
-                    return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
-
-                $data = $validator->validated();
-
-                $order_item->update($data);
-            }
-
-            $order = Order::find($order_id);
-
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
         }
 
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        $order = Order::find($order_id);
+
+        return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
     }
 
     /**
@@ -164,9 +139,10 @@ class OrderController extends Controller
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order) {
-            $products = $order->order_items()->select('product');
-            foreach ($products as $p){
-                $p->quantity++;
+            $orderItems = $order->order_items;
+            foreach ($orderItems as $item){
+                $p = Product::find($item->product->id);
+                $p->quantity += 1;
                 $p->save();
             }
 
