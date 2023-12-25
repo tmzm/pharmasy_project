@@ -6,15 +6,10 @@ use App\Enums\ReturnMessages;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Application as Application2;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\InvoicePaid;
 
 class OrderController extends Controller
@@ -47,11 +42,10 @@ class OrderController extends Controller
     /**
      * Show the form for creating a new resource.
      * @param Request $request
-     * @param $product_id
      * @return Response
      * @throws ValidationException
      */
-    public function create(Request $request, $product_id): Response
+    public function create(Request $request): Response
     {
         $validator = validator($request->all(),[
            'products' => 'required',
@@ -65,6 +59,11 @@ class OrderController extends Controller
         $order = Order::create([
             'user_id' => $request->user()->id
         ]);
+
+        foreach ($data['products'] as $p) {
+            if(Product::find($p['id'])->quantity <= 0)
+                return $this->apiResponse(500,ReturnMessages::Error->value);
+        }
 
         foreach ($data['products'] as $p) {
             OrderItem::create([

@@ -6,9 +6,6 @@ use App\Enums\ReturnMessages;
 use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Application as Application2;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 

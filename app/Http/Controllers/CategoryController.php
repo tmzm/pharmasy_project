@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReturnMessages;
 use App\Models\Category;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Application as Application2;
 use Illuminate\Http\Response;
 
 class CategoryController extends Controller

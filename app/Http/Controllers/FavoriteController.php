@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\ReturnMessages;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Foundation\Application as Application2;
 use Illuminate\Http\Response;
 
 class FavoriteController extends Controller

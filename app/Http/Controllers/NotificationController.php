@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Notifications\Notification;
 
 class NotificationController extends Controller
 {
     use ApiResponse;
 
-    public function notify($title,$body,$device_key)
+    public function notify($title,$body,$device_key): \Illuminate\Http\Response
     {
         $url = 'https://fcw.googleapis.com/fcw/send';
         $serverKey = env('serverKey');
@@ -63,7 +62,6 @@ class NotificationController extends Controller
      */
     public function create(Request $request)
     {
-        $user = $request->user();
-        $this->notify($request->title,$request->body,$user->device_key);
+        $this->notify($request['title'],$request['body'],$request->user()->device_key);
     }
 }
