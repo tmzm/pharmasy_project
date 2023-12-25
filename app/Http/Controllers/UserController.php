@@ -54,7 +54,7 @@ class UserController extends Controller
             try{
                 if ($request->hasfile('image')) {
                     $image = $request->file('image');
-                    $imageName = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
                     $image->move(public_path('images'),$imageName);
                     $d['image'] = '/images/' .  $imageName;
                 }
@@ -155,7 +155,7 @@ class UserController extends Controller
             try{
                 if ($request->hasfile('image')) {
                     $image = $request->file('image');
-                    $imageName = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
                     $image->move(public_path('images'),$imageName);
                     $d['image'] = '/images/' .  $imageName;
                 }
