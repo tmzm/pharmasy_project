@@ -36,7 +36,7 @@ Route::group([
 
 Route::post('register',[UserController::class,'create']);
 
-Route::post('login',[UserController::class,'store'])->middleware('guest.check');
+Route::post('login',[UserController::class,'store']);
 
 // *---- End shared Routes ----*
 

@@ -65,8 +65,10 @@ class ProductController extends Controller
         $data['warehouse_id'] = Warehouse::where('user_id',$request->user()->id)->first()->id;
 
         try{
-            if (request()->hasfile('image')) {
-                $data['image'] = '/storage/' . substr(request()->file('image')->store('public/products') , 7);
+            if ($request->hasfile('image')) {
+                $image = time().'.'.$request->file('image')->getClientOriginalExtension();
+                $image->move(public_path('images'),$image);
+                $data['image'] = '/images/' .  $image;
             }
         }catch(Exception $e){
             return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
@@ -129,8 +131,10 @@ class ProductController extends Controller
             $data = $validator->validated();
 
             try{
-                if (request()->hasfile('image')) {
-                    $data['image'] = '/storage/' . substr(request()->file('image')->store('public/products') , 7);
+                if ($request->hasfile('image')) {
+                    $image = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $image->move(public_path('images'),$image);
+                    $data['image'] = '/images/' .  $image;
                 }
             }catch(Exception $e){
                 return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);

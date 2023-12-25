@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
+use Database\Factories\CategoryFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,6 +14,70 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Product::factory(10)->create();
+        (new CategorySeeder)->run();
+        \App\Models\Product::factory()->create([
+            'scientific_name' => 'Vasolol',
+            'commercial_name' => 'Vasolol',
+            'category_id' => 1,
+            'warehouse_id' => 1,
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+        \App\Models\Product::factory()->create([
+
+        ]);
+
     }
 }

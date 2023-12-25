@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ReturnMessages;
 use App\Models\User;
 use App\Models\Warehouse;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -17,7 +18,7 @@ class UserController extends Controller
      * @return Response
      * @throws ValidationException
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $validator = validator(request()->all(), [
             'name' => 'required|min:3|max:50',
@@ -51,8 +52,10 @@ class UserController extends Controller
             ]);
 
             try{
-                if (request()->hasfile('image')) {
-                    $d['image'] = '/storage/' . substr(request()->file('image')->store('public/warehouses') , 7);
+                if ($request->hasfile('image')) {
+                    $image = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $image->move(public_path('images'),$image);
+                    $d['image'] = '/images/' .  $image;
                 }
             }catch(Exception $e){
                 return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
@@ -149,8 +152,10 @@ class UserController extends Controller
             $d = $validatorWarehouseOwner->validated();
 
             try{
-                if (request()->hasfile('image')) {
-                    $d['image'] = '/storage/' . substr(request()->file('image')->store('public/warehouses') , 7);
+                if ($request->hasfile('image')) {
+                    $image = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $image->move(public_path('images'),$image);
+                    $data['image'] = '/images/' .  $image;
                 }
             }catch(Exception $e){
                 return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);

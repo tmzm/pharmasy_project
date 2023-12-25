@@ -22,8 +22,8 @@ class ProductFactory extends Factory
             'scientific_name'=>fake()->name(),
             'commercial_name'=>fake()->name(),
             'company_name'=>fake()->name(),
-            'quantity'=>fake()->numberBetween(1,100),
-            'price'=>fake()->numberBetween(100000,200000),
+            'quantity'=>fake()->numberBetween(10,100),
+            'price'=>5000,
             'category_id'=>Category::factory()->create()->id,
             'warehouse_id'=>Warehouse::factory()->create()->id,
             'expiration'=>fake()->dateTime()
