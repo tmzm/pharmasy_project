@@ -152,7 +152,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $product_id): Response
     {
-        $product = Warehouse::firsWhere('user_id',$request->user()->id)->products->firstWhere('id',$product_id);
+        $product = Warehouse::firstWhere('user_id',$request->user()->id)->products->firstWhere('id',$product_id);
 
         if($product) {
             $product->delete();
