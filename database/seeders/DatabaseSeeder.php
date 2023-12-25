@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         (new CategorySeeder)->run();
         \App\Models\Product::factory()->create([
-            'scientific_name' => 'Vasolo',
+            'scientific_name' => 'Vasolol',
             'commercial_name' => 'Vasolol',
             'category_id' => 1,
             'warehouse_id' => 1,
