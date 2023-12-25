@@ -11,7 +11,7 @@ class Warehouse extends Model
 
     protected $guarded = [];
 
-    protected $with = ['warehouseowner', 'products'];
+    protected $with = ['warehouseowner'];
 
     public function products()
     {

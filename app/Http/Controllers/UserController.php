@@ -53,9 +53,10 @@ class UserController extends Controller
 
             try{
                 if ($request->hasfile('image')) {
-                    $image = time().'.'.$request->file('image')->getClientOriginalExtension();
-                    $image->move(public_path('images'),$image);
-                    $d['image'] = '/images/' .  $image;
+                    $image = $request->file('image');
+                    $imageName = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $image->move(public_path('images'),$imageName);
+                    $d['image'] = '/images/' .  $imageName;
                 }
             }catch(Exception $e){
                 return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
@@ -153,9 +154,10 @@ class UserController extends Controller
 
             try{
                 if ($request->hasfile('image')) {
-                    $image = time().'.'.$request->file('image')->getClientOriginalExtension();
-                    $image->move(public_path('images'),$image);
-                    $data['image'] = '/images/' .  $image;
+                    $image = $request->file('image');
+                    $imageName = time().'.'.$request->file('image')->getClientOriginalExtension();
+                    $image->move(public_path('images'),$imageName);
+                    $d['image'] = '/images/' .  $imageName;
                 }
             }catch(Exception $e){
                 return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);

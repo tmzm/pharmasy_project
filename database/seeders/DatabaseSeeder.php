@@ -15,69 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         (new CategorySeeder)->run();
-        \App\Models\Product::factory()->create([
-            'scientific_name' => 'Vasolol',
-            'commercial_name' => 'Vasolol',
-            'category_id' => 1,
-            'warehouse_id' => 1,
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-        \App\Models\Product::factory()->create([
-
-        ]);
-
+        (new WarehouseSeeder())->run();
+        (new ProductSeeder)->run();
     }
 }
