@@ -51,7 +51,7 @@ Route::group([
     //orders
     Route::get('orders',[OrderController::class,'index']);
     Route::get('order/{order_id}',[OrderController::class,'show']);
-    Route::post('order/product/{product_id}/create',[OrderController::class,'create']);
+    Route::post('order/create',[OrderController::class,'create']);
     Route::patch('order/{order_id}/update',[OrderController::class,'update']);
     Route::delete('order/{order_id}/delete',[OrderController::class,'destroy']);
 

@@ -28,8 +28,10 @@ class OrderController extends Controller
         else{
             $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
 
-            $orders = Order::whereHas('product', function ($query) use ($warehouseId) {
-                $query->where('warehouse_id', $warehouseId);
+            $orders = Order::whereHas('order_items', function ($query) use ($warehouseId) {
+                $query->whereHas('product',function ($query)  use ($warehouseId){
+                    $query->where('warehouse_id',$warehouseId);
+                });
             })->get();
         }
 
@@ -115,6 +117,7 @@ class OrderController extends Controller
             'payment_status' => $request['payment_status']
         ]);
 
+        if($request['products'])
         foreach ($request['products'] as $p) {
             $orderItem = OrderItem::where('product_id',$p['id']);
             $orderItem->update([

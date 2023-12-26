@@ -30,7 +30,7 @@ class WarehouseSeeder extends Seeder
         $id = User::create([
             'name'=>$name,
             'phone_number' => fake()->unique()->phoneNumber(),
-            'password' => Hash::make('password'),
+            'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
             'role' => 'warehouse_owner'
         ])->id;
