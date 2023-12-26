@@ -63,16 +63,10 @@ class ProductController extends Controller
 
         $data['warehouse_id'] = Warehouse::where('user_id',$request->user()->id)->first()->id;
 
-        try{
-            if ($request->hasfile('image')) {
-                $image = $request->file('image');
-                $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
-                copy($image, public_path('images/' . $imageName));
-                $data['image'] = '/images/' .  $imageName;
-            }
-        }catch(Exception $e){
-            return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
-        }
+        $image = $this->save_image_to_public_directory($request);
+
+        if($image !== false)
+            $data['image'] = $image;
 
         $product = Product::create($data);
 
@@ -81,20 +75,12 @@ class ProductController extends Controller
 
 
     /**
-     * @param Request $request
      * @param $product_id
      * @return Response
      */
-    public function show(Request $request, $product_id): Response
+    public function show($product_id): Response
     {
         $product = Product::find($product_id);
-
-        if($request->user()->role == 'warehouse_owner')
-            $product = $product->whereHas('warehouse', fn ($query)
-
-            => $query->where('user_id',$request->user()->id)
-
-            )->first();
 
         if($product)
             return $this->apiResponse(200,ReturnMessages::Ok->value,$product);
@@ -111,9 +97,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $product_id): Response
     {
-        $product = Product::whereHas('warehouse',function ($query) use ($product_id,$request){
-            $query->where('user_id',$request->user()->id);
-        })->firstWhere('id',$product_id);
+        $product = $this->get_only_warehouse_product($product_id,$request->user()->id);
 
         if($product) {
             $validator = validator($request->all(),[
@@ -132,16 +116,10 @@ class ProductController extends Controller
 
             $data = $validator->validated();
 
-            try{
-                if ($request->hasfile('image')) {
-                    $image = $request->file('image');
-                    $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
-                    copy($image, public_path('images/' . $imageName));
-                    $data['image'] = '/images/' .  $imageName;
-                }
-            }catch(Exception $e){
-                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
-            }
+            $image = $this->save_image_to_public_directory($request);
+
+            if($image !== false)
+                $data['image'] = $image;
 
             $product->update($data);
 
@@ -159,9 +137,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $product_id): Response
     {
-        $product = Product::whereHas('warehouse',function ($query) use ($product_id,$request){
-                $query->where('user_id',$request->user()->id);
-            })->firstWhere('id',$product_id);
+        $product = $this->get_only_warehouse_product($product_id,$request->user()->id);
 
         if($product) {
             $product->delete();

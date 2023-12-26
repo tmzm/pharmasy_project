@@ -15,6 +15,7 @@ class UserController extends Controller
     use ApiResponse;
 
     /**
+     * @param Request $request
      * @return Response
      * @throws ValidationException
      */
@@ -32,10 +33,12 @@ class UserController extends Controller
 
         $data = $validator->validated();
 
+        $user = $this->create_user($data);
+
         if($data['role'] == 'warehouse_owner'){
             $validatorWarehouseOwner = validator(request()->all(), [
                 'warehouseName' => 'required|min:3|max:50',
-                'image' => ['image','mimes:jpg,jpeg,png,svg'],
+                'image' => ['required','image','mimes:jpg,jpeg,png,svg'],
                 'location' => 'required|min:10|max:50',
             ]);
 
@@ -44,43 +47,18 @@ class UserController extends Controller
 
             $d = $validatorWarehouseOwner->validated();
 
-            $user = User::create([
-                'name' => $data['name'],
-                'phone_number' => $data['phone_number'],
-                'password' => bcrypt($data['password']),
-                'role' => $data['role']
-            ]);
+            $image = $this->save_image_to_public_directory($request);
 
-            try{
-                if ($request->hasfile('image')) {
-                    $image = $request->file('image');
-                    $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
-                    $image->move(public_path('images'),$imageName);
-                    $d['image'] = '/images/' .  $imageName;
-                }
-            }catch(Exception $e){
-                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
-            }
+            if($image !== false)
+                $d['image'] = $image;
 
-            $warehouse = Warehouse::create([
-                'name' => $d['warehouseName'],
-                'location' => $d['location'],
-                'image' => $d['image'],
-                'user_id' => $user->id
-            ]);
+            $warehouse = $this->create_warehouse($d,$user->id);
 
             $token = $user->createToken('UserToken')->accessToken;
 
             return $this->apiResponse(200,ReturnMessages::Ok->value,['user'=>$user,'warehouse'=>$warehouse],$token);
 
         }
-
-        $user = User::create([
-            'name' => $data['name'],
-            'phone_number' => $data['phone_number'],
-            'password' => bcrypt($data['password']),
-            'role' => $data['role']
-        ]);
 
         $token = $user->createToken('UserToken')->accessToken;
 
@@ -94,7 +72,7 @@ class UserController extends Controller
      */
     public function store(Request $request): Response
     {
-        $validator = validator(request()->all(), [
+        $validator = validator($request->all(), [
             'phone_number' => 'required',
             'password' => 'required|min:8|max:30',
             'role' => 'required'
@@ -114,10 +92,9 @@ class UserController extends Controller
         if (auth()->attempt($data)) {
             $token = auth()->user()->createToken('UserToken')->accessToken;
             return $this->apiResponse(200,ReturnMessages::Ok->value,auth()->user(),$token);
-        } else
-            return $this->apiResponse(401,ReturnMessages::UnAuth->value);
+        }
 
-        return $this->apiResponse(200,'ok',auth()->user());
+        return $this->apiResponse(401,ReturnMessages::UnAuth->value);
     }
 
     /**
@@ -152,16 +129,10 @@ class UserController extends Controller
 
             $d = $validatorWarehouseOwner->validated();
 
-            try{
-                if ($request->hasfile('image')) {
-                    $image = $request->file('image');
-                    $imageName = time().'_'.$request->file('image')->getClientOriginalExtension();
-                    $image->move(public_path('images'),$imageName);
-                    $d['image'] = '/images/' .  $imageName;
-                }
-            }catch(Exception $e){
-                return $this->apiResponse(500,ReturnMessages::Error->value,null,null,$e);
-            }
+            $image = $this->save_image_to_public_directory($request);
+
+            if($image !== false)
+                $d['image'] = $image;
 
             $user->update($data);
 

@@ -10,12 +10,9 @@ use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use App\Notifications\InvoicePaid;
 
 class OrderController extends Controller
 {
-    use ApiResponse;
-
     /**
      * Display a listing of the resource.
      * @param Request $request
@@ -28,11 +25,7 @@ class OrderController extends Controller
         else{
             $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
 
-            $orders = Order::whereHas('order_items', function ($query) use ($warehouseId) {
-                $query->whereHas('product',function ($query)  use ($warehouseId){
-                    $query->where('warehouse_id',$warehouseId);
-                });
-            })->get();
+            $orders = $this->get_orders_by_warehouse_id($warehouseId);
         }
 
         if(count($orders))
@@ -58,26 +51,12 @@ class OrderController extends Controller
 
         $data = $validator->validated();
 
-        $order = Order::create([
-            'user_id' => $request->user()->id
-        ]);
+        if($this->check_products_quantity($data) === false)
+            return $this->apiResponse(500,ReturnMessages::Error->value);
 
-        foreach ($data['products'] as $p) {
-            if(Product::find($p['id'])->quantity <= 0)
-                return $this->apiResponse(500,ReturnMessages::Error->value);
-        }
+        $order = $this->create_order($request->user()->id);
 
-        foreach ($data['products'] as $p) {
-            OrderItem::create([
-                'product_id' => $p['id'],
-                'order_id' => $order->id,
-                'quantity' => $p['quantity']
-            ]);
-
-            $pr = Product::find($p['id']);
-            $pr->quantity -= 1;
-            $pr->save();
-        }
+        $this->create_order_item_and_reduce_every_product_by_one($data['products'],$order);
 
         return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
     }
@@ -112,18 +91,10 @@ class OrderController extends Controller
         if(!$order)
             return $this->apiResponse(404,ReturnMessages::NotFound->value);
 
-        $order->update([
-            'status' => $request['status'],
-            'payment_status' => $request['payment_status']
-        ]);
+        $this->update_order_status($order,$request);
 
         if($request['products'])
-        foreach ($request['products'] as $p) {
-            $orderItem = OrderItem::where('product_id',$p['id']);
-            $orderItem->update([
-                'quantity' => $p['quantity']
-            ]);
-        }
+            $this->update_every_order_item_quantity($request['products']);
 
         $order = Order::find($order_id);
 
@@ -141,12 +112,7 @@ class OrderController extends Controller
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order) {
-            $orderItems = $order->order_items;
-            foreach ($orderItems as $item){
-                $p = Product::find($item->product->id);
-                $p->quantity += 1;
-                $p->save();
-            }
+            $this->decresue_every_product_by_one($order);
 
             $order->delete();
 
