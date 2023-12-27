@@ -11,13 +11,17 @@ use Illuminate\Http\Request;
 
 trait TableHelper
 {
-    public function update_every_order_item_quantity($request): void
+    public function update_every_order_item_quantity($request,$order): void
     {
         foreach ($request as $p) {
-            $orderItem = OrderItem::where('product_id',$p['id']);
+            $orderItem = OrderItem::firstWhere('product_id',$p['id']);
+            $product = Product::find($p['id']);
+            $order->total_price -= $orderItem->quantity * $product->price;
             $orderItem->update([
                 'quantity' => $p['quantity']
             ]);
+            $order->total_price += $p['quantity'] * $product->price;
+            $order->save();
         }
     }
 

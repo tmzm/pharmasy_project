@@ -82,10 +82,11 @@ class OrderController extends Controller
         if(!$order)
             return $this->apiResponse(404,ReturnMessages::NotFound->value);
 
-        $this->update_order_status($order,$request);
+        if($request['status'] ?? false)
+             $this->update_order_status($order,$request);
 
         if($request['products'])
-            $this->update_every_order_item_quantity($request['products']);
+            $this->update_every_order_item_quantity($request['products'],$order);
 
         $order = Order::find($order_id);
 
