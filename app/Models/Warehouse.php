@@ -11,7 +11,7 @@ class Warehouse extends Model
 
     protected $guarded = [];
 
-    protected $with = ['warehouseowner'];
+    protected $with = ['warehouse_owner'];
 
     public function products()
     {
@@ -23,8 +23,8 @@ class Warehouse extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function warehouseowner()
+    public function warehouse_owner()
     {
-        return $this->belongsTo(user::class,'user_id')->where('role','=','warehouse_owner');
+        return $this->belongsTo(user::class,'user_id');
     }
 }

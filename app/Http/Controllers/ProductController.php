@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\ReturnMessages;
 use App\Models\Product;
 use App\Models\Warehouse;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -20,15 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): Response
     {
-        $filters = request(['search', 'category', 'warehouse_id']);
-
-        if ($request->user()->role == 'user')
-            $warehouse_id = request('warehouse_id');
-        else {
-            $warehouse_id = Warehouse::firstWhere('user_id',$request->user()->id)->id;
-        }
-
-        $products = Product::filter($filters,$warehouse_id)->latest()->get();
+        $products = $this->filter_products(request(['search', 'category', 'warehouse_id']),$request);
 
         if(count($products))
             return $this->apiResponse(200,ReturnMessages::Ok->value,$products);

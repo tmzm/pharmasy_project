@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
@@ -32,6 +33,8 @@ Route::group([
     Route::get('user',[UserController::class,'show']);
 
     Route::post('notify',[NotificationController::class,'create']);
+
+    Route::patch('order/{order_id}/update',[OrderController::class,'update']);
 });
 
 Route::post('register',[UserController::class,'create']);
@@ -52,8 +55,8 @@ Route::group([
     Route::get('orders',[OrderController::class,'index']);
     Route::get('order/{order_id}',[OrderController::class,'show']);
     Route::post('order/create',[OrderController::class,'create']);
-    Route::patch('order/{order_id}/update',[OrderController::class,'update']);
     Route::delete('order/{order_id}/delete',[OrderController::class,'destroy']);
+    Route::delete('orderItem/product/{product_id}/delete',[OrderItemController::class,'destroy']);
 
     //all warehouses
     Route::get('warehouses',[WarehouseController::class,'index']);

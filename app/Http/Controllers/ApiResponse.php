@@ -6,10 +6,9 @@ trait ApiResponse
 {
     public function apiResponse($status = null,$msg = null,$data = null,$token = null,$errors = null): \Illuminate\Http\Response
     {
-
         $array  = [
-            'message' => $msg,
             'status' => $status,
+            'message' => $msg,
             'data' => $data,
             'token' => $token,
             'errors' => $errors

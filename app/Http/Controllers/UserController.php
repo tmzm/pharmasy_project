@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\ReturnMessages;
 use App\Models\User;
 use App\Models\Warehouse;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -53,8 +52,6 @@ class UserController extends Controller
                 $d['image'] = $image;
 
             $warehouse = $this->create_warehouse($d,$user->id);
-
-            $token = $user->createToken('UserToken')->accessToken;
 
             return $this->apiResponse(200,ReturnMessages::Ok->value,['user'=>$user,'warehouse'=>$warehouse],$token);
 
@@ -118,7 +115,7 @@ class UserController extends Controller
         if($user->role == 'warehouse_owner'){
             $warehouse = Warehouse::firstWhere('user_id',$user->id);
 
-            $validatorWarehouseOwner = validator(request()->all(), [
+            $validatorWarehouseOwner = validator($request->all(), [
                 'warehouseName' => 'min:3|max:50',
                 'location' => 'min:10|max:50',
                 'image' => ['image','mimes:jpg,jpeg,png,svg'],

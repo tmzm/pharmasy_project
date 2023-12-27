@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Warehouse;
+use Illuminate\Http\Request;
 
 trait TableHelper
 {
@@ -19,6 +20,7 @@ trait TableHelper
             ]);
         }
     }
+
     public function update_order_status(Order $order,$request) : void
     {
         $order->update([
@@ -26,12 +28,14 @@ trait TableHelper
             'payment_status' => $request['payment_status']
         ]);
     }
+
     public function create_order($user_id)
     {
         return Order::create([
             'user_id' => $user_id,
         ]);
     }
+
     public function get_orders_by_warehouse_id($warehouseId)
     {
         return Order::whereHas('order_items', function ($query) use ($warehouseId) {
@@ -40,6 +44,7 @@ trait TableHelper
             });
         })->get();
     }
+
     public function create_warehouse($d,$user_id)
     {
         return Warehouse::create([
@@ -49,6 +54,7 @@ trait TableHelper
             'user_id' => $user_id
         ]);
     }
+
     public function create_user($data)
     {
         return User::create([
@@ -58,6 +64,7 @@ trait TableHelper
             'role' => $data['role']
         ]);
     }
+
     public function get_only_warehouse_product($product_id,$user_id)
     {
         return Product::whereHas('warehouse',function ($query) use ($product_id,$user_id){
@@ -65,4 +72,30 @@ trait TableHelper
         })->firstWhere('id',$product_id);
     }
 
+    public function get_request_warehouse_id_by_role(Request $request)
+    {
+        if ($request->user()->role == 'user')
+            return request('warehouse_id');
+        else {
+            return Warehouse::firstWhere('user_id',$request->user()->id)->id;
+        }
+    }
+
+    public function filter_products($filters ,Request $request)
+    {
+        $warehouse_id = $this->get_request_warehouse_id_by_role($request);
+
+        return Product::filter($filters,$warehouse_id)->latest()->get();
+    }
+
+    public function get_user_orders_or_warehouse_orders(Request $request)
+    {
+        if($request->user()->role == 'user')
+            return Order::where('user_id',$request->user()->id)->get();
+        else{
+            $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
+
+            return $this->get_orders_by_warehouse_id($warehouseId);
+        }
+    }
 }

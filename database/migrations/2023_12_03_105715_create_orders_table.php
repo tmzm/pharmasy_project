@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->enum('status',['sent','preparing','done'])->default('sent');
             $table->boolean('payment_status')->default(false);
-            $table->float('total_price')->nullable();
+            $table->decimal('total_price')->nullable();
             $table->timestamps();
         });
     }

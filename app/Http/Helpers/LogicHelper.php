@@ -2,6 +2,7 @@
 
 namespace App\Http\Helpers;
 
+use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Exception;
@@ -24,16 +25,16 @@ trait LogicHelper
 
         return false;
     }
-    public function decresue_every_product_by_one($order): void
+    public function increase_every_product_by_quantity($order): void
     {
         $orderItems = $order->order_items;
         foreach ($orderItems as $item){
             $p = Product::find($item->product->id);
-            $p->quantity += 1;
+            $p->quantity += $item->quantity;
             $p->save();
         }
     }
-    public function create_order_item_and_reduce_every_product_by_one($products,$order): void
+    public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order): void
     {
         $total_price = 0;
         foreach ($products as $p) {
@@ -44,8 +45,8 @@ trait LogicHelper
             ]);
 
             $pr = Product::find($p['id']);
-            $pr->quantity -= 1;
-            $total_price += $pr->price;
+            $pr->quantity -= $p['quantity'];
+            $total_price += ($pr->price)*$p['quantity'];
             $pr->save();
         }
         $order->total_price = $total_price;
@@ -54,10 +55,25 @@ trait LogicHelper
     public function check_products_quantity($data): bool
     {
         foreach ($data['products'] as $p) {
-            if(Product::find($p['id'])->quantity <= 0)
+            $product = Product::find($p['id']);
+            if($product->quantity <= 0 || $product->quantity < $p['quantity'])
                 return false;
         }
         return true;
     }
 
+    public function decresue_total_price_before_delete_order_item($orderItem): void
+    {
+        $order = Order::whereHas('order_items',function ($query) use ($orderItem){
+            $query->where('id',$orderItem->id);
+        })->first();
+
+        $product = $orderItem->product;
+
+        $order->total_price -= $orderItem->quantity * $product->price;
+        $order->save();
+
+        $product->quantity += $orderItem->quantity;
+        $product->save();
+    }
 }

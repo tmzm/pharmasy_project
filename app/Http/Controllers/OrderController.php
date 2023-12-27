@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReturnMessages;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
-use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -20,13 +17,7 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
-        if($request->user()->role == 'user')
-            $orders = Order::where('user_id',$request->user()->id)->get();
-        else{
-            $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
-
-            $orders = $this->get_orders_by_warehouse_id($warehouseId);
-        }
+        $orders = $this->get_user_orders_or_warehouse_orders($request);
 
         if(count($orders))
             return $this->apiResponse(200,ReturnMessages::Ok->value,$orders);
@@ -56,7 +47,7 @@ class OrderController extends Controller
 
         $order = $this->create_order($request->user()->id);
 
-        $this->create_order_item_and_reduce_every_product_by_one($data['products'],$order);
+        $this->create_order_item_and_reduce_every_product_by_order_quantity($data['products'],$order);
 
         return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
     }
@@ -112,7 +103,7 @@ class OrderController extends Controller
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order) {
-            $this->decresue_every_product_by_one($order);
+            $this->increase_every_product_by_quantity($order);
 
             $order->delete();
 
