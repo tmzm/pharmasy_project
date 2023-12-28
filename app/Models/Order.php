@@ -20,6 +20,13 @@ class Order extends Model
         }
     }
 
+    public function scopeByOrderItemId($query,$order_item_id)
+    {
+       $query->whereHas('order_items',fn ($query) =>
+            $query->where('id',$order_item_id)
+        );
+    }
+
     protected $guarded = [];
 
     protected $with = ['user','order_items'];

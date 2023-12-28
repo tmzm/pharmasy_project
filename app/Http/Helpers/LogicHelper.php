@@ -64,9 +64,7 @@ trait LogicHelper
 
     public function decresue_total_price_before_delete_order_item($orderItem): void
     {
-        $order = Order::whereHas('order_items',function ($query) use ($orderItem){
-            $query->where('id',$orderItem->id);
-        })->first();
+        $order = Order::byOrderItemId($orderItem->id)->first();
 
         $product = $orderItem->product;
 

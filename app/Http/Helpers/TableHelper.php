@@ -85,9 +85,7 @@ trait TableHelper
 
     public function filter_products($filters ,Request $request)
     {
-        $warehouse_id = $this->get_request_warehouse_id_by_role($request);
-
-        return Product::filter($filters,$warehouse_id)->latest()->get();
+        return Product::filter($filters, $this->get_request_warehouse_id_by_role($request))->latest()->get();
     }
 
     public function get_user_orders_or_warehouse_orders(Request $request)
