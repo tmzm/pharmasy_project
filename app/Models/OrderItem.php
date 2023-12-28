@@ -13,6 +13,15 @@ class OrderItem extends Model
 
     protected $with = ['product'];
 
+    public function scopeByProductAndUserId($query,$product_id,$user_id)
+    {
+        $query->whereHas('product',fn ($query) =>
+            $query->where('id',$product_id)->whereHas('warehouse' , fn ($query)=>
+            $query->where('user_id',$user_id)
+            )
+        );
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);

@@ -11,18 +11,32 @@ use Illuminate\Http\Request;
 
 trait TableHelper
 {
-    public function update_every_order_item_quantity($request,$order): void
+    public function update_every_order_item_quantity($request,$order): bool
     {
+        // $temp = $request;
+        // check new order quantity if not biggest than product quantity
+        foreach ($request as $p){
+            $orderItem = OrderItem::firstWhere('product_id',$p['id']);
+            $product = Product::find($p['id']);
+            $product->quantity += $orderItem->quantity;
+            if($product->quantity < $p['quantity'])
+                return false;
+        }
         foreach ($request as $p) {
             $orderItem = OrderItem::firstWhere('product_id',$p['id']);
             $product = Product::find($p['id']);
+            $product->quantity += $orderItem->quantity;
             $order->total_price -= $orderItem->quantity * $product->price;
             $orderItem->update([
                 'quantity' => $p['quantity']
             ]);
             $order->total_price += $p['quantity'] * $product->price;
             $order->save();
+            $product->quantity -= $p['quantity'];
+            $product->save();
         }
+
+        return true;
     }
 
     public function update_order_status(Order $order,$request) : void
@@ -38,15 +52,6 @@ trait TableHelper
         return Order::create([
             'user_id' => $user_id,
         ]);
-    }
-
-    public function get_orders_by_warehouse_id($warehouseId)
-    {
-        return Order::whereHas('order_items', function ($query) use ($warehouseId) {
-            $query->whereHas('product',function ($query)  use ($warehouseId){
-                $query->where('warehouse_id',$warehouseId);
-            });
-        })->get();
     }
 
     public function create_warehouse($d,$user_id)
@@ -69,13 +74,6 @@ trait TableHelper
         ]);
     }
 
-    public function get_only_warehouse_product($product_id,$user_id)
-    {
-        return Product::whereHas('warehouse',function ($query) use ($product_id,$user_id){
-            $query->where('user_id',$user_id);
-        })->firstWhere('id',$product_id);
-    }
-
     public function get_request_warehouse_id_by_role(Request $request)
     {
         if ($request->user()->role == 'user')
@@ -94,12 +92,6 @@ trait TableHelper
 
     public function get_user_orders_or_warehouse_orders(Request $request)
     {
-        if($request->user()->role == 'user')
-            return Order::where('user_id',$request->user()->id)->get();
-        else{
-            $warehouseId = Warehouse::firstWhere('user_id',$request->user()->id)->id;
-
-            return $this->get_orders_by_warehouse_id($warehouseId);
-        }
+        return Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->get();
     }
 }

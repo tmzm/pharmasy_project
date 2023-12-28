@@ -42,7 +42,7 @@ class OrderController extends Controller
 
         $data = $validator->validated();
 
-        if($this->check_products_quantity($data) === false)
+        if(!$this->check_products_quantity($data['products']))
             return $this->apiResponse(500,ReturnMessages::Error->value);
 
         $order = $this->create_order($request->user()->id);
@@ -82,11 +82,12 @@ class OrderController extends Controller
         if(!$order)
             return $this->apiResponse(404,ReturnMessages::NotFound->value);
 
-        if($request['status'] ?? false)
+        if($request['status'] ?? $request['payment_status'] ?? false)
              $this->update_order_status($order,$request);
 
-        if($request['products'])
-            $this->update_every_order_item_quantity($request['products'],$order);
+        if($request['products'] ?? false)
+            if(!$this->update_every_order_item_quantity($request['products'],$order))
+                return $this->apiResponse(500,ReturnMessages::Error->value);
 
         $order = Order::find($order_id);
 

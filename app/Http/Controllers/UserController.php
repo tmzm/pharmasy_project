@@ -11,8 +11,6 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    use ApiResponse;
-
     /**
      * @param Request $request
      * @return Response
@@ -79,12 +77,6 @@ class UserController extends Controller
             return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
 
         $data = $validator->validated();
-
-        $user = User::firstWhere('role','=',$data['role']);
-
-        if(!$user)
-            return $this->apiResponse(401, ReturnMessages::UnAuth->value);
-
 
         if (auth()->attempt($data)) {
             $token = auth()->user()->createToken('UserToken')->accessToken;

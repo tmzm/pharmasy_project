@@ -35,7 +35,7 @@ class WarehouseSeeder extends Seeder
             'role' => 'warehouse_owner'
         ])->id;
         Warehouse::create([
-            'name' => $name . ' warehouse',
+            'name' => $name,
             'location' => $name . ' location',
             'user_id' => $id,
             'image' => $image

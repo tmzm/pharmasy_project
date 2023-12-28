@@ -54,7 +54,7 @@ trait LogicHelper
     }
     public function check_products_quantity($data): bool
     {
-        foreach ($data['products'] as $p) {
+        foreach ($data as $p) {
             $product = Product::find($p['id']);
             if($product->quantity <= 0 || $product->quantity < $p['quantity'])
                 return false;

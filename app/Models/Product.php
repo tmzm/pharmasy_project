@@ -17,7 +17,7 @@ class Product extends Model
     /**
      * @param $query
      * @param array $filters
-     * @param string $warehouse
+     * @param string $warehouse_id
      */
     public function scopeFilter($query, array $filters,string $warehouse_id){
 
@@ -52,6 +52,13 @@ class Product extends Model
 
         }
 
+    }
+
+    public function scopeByOwnerAndProductId($query,$user_id,$product_id)
+    {
+        $query->whereHas('warehouse',fn ($query) =>
+            $query->where('user_id',$user_id)->firstWhere('id',$product_id)
+        );
     }
 
     public function warehouse()

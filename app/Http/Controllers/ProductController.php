@@ -11,8 +11,6 @@ use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
-    use ApiResponse;
-
     /**
      * @param Request $request
      * @return Response
@@ -88,7 +86,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $product_id): Response
     {
-        $product = $this->get_only_warehouse_product($product_id,$request->user()->id);
+        $product = Product::byOwnerAndProductId($product_id,$request->user()->id);
 
         if($product) {
             $validator = validator($request->all(),[
