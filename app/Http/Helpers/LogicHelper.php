@@ -71,6 +71,7 @@ trait LogicHelper
         $order->total_price -= $orderItem->quantity * $product->price;
         $order->save();
 
+
         $product->quantity += $orderItem->quantity;
         $product->save();
     }
