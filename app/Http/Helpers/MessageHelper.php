@@ -7,7 +7,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait MessageHelper
 {
-    public function ok($data = null,$token = null)
+    public function ok($data = null, $token = null)
     {
         throw new HttpResponseException(self::apiResponse(200,ReturnMessages::Ok->value,$data,$token));
     }

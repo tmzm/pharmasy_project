@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReturnMessages;
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
-use App\Models\Warehouse;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {

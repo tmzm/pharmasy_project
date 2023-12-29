@@ -111,7 +111,7 @@ trait CreateUpdateHelper
         ]);
     }
 
-    public function create_order_by_request_and_product($request): mixed
+    public function create_order_by_request($request): mixed
     {
         $data = $request->validated();
 

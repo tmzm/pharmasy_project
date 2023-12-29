@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReturnMessages;
 use App\Http\Requests\CreateOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
@@ -17,7 +14,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        self::get_user_orders_or_warehouse_orders($request);
+        self::get_user_or_warehouse_orders($request);
     }
 
     /**
@@ -26,7 +23,7 @@ class OrderController extends Controller
      */
     public function create(CreateOrderRequest $request)
     {
-        self::create_order_by_request_and_product($request);
+        self::create_order_by_request($request);
     }
 
     /**

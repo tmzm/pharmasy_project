@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReturnMessages;
 use App\Models\Favorite;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class FavoriteController extends Controller
 {

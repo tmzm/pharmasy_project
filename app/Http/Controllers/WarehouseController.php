@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReturnMessages;
 use App\Models\Warehouse;
-use Illuminate\Http\Response;
 
 class WarehouseController extends Controller
 {/**

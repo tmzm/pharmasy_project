@@ -26,7 +26,7 @@ trait TableGetterHelper
         count($products) ? self::ok($products) : self::notFound();
     }
 
-    public function get_user_orders_or_warehouse_orders(Request $request): void
+    public function get_user_or_warehouse_orders(Request $request): void
     {
         $orders = Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->get();
 

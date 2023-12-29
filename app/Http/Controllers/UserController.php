@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ReturnMessages;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
