@@ -25,34 +25,6 @@ trait LogicHelper
         return false;
     }
 
-    public function increase_every_product_by_quantity($order): void
-    {
-        $orderItems = $order->order_items;
-        foreach ($orderItems as $item){
-            $p = Product::find($item->product->id);
-            $p->quantity += $item->quantity;
-            $p->save();
-        }
-    }
-
-    public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order): void
-    {
-        $total_price = 0;
-        foreach ($products as $p) {
-            OrderItem::create([
-                'product_id' => $p['id'],
-                'order_id' => $order->id,
-                'quantity' => $p['quantity']
-            ]);
-            $pr = Product::find($p['id']);
-            $pr->quantity -= $p['quantity'];
-            $total_price += ($pr->price)*$p['quantity'];
-            $pr->save();
-        }
-        $order->total_price = $total_price;
-        $order->save();
-    }
-
     public function check_products_quantity($data): bool
     {
         foreach ($data as $p) {
@@ -61,15 +33,5 @@ trait LogicHelper
                 return false;
         }
         return true;
-    }
-
-    public function decresue_total_price_before_delete_order_item($orderItem): void
-    {
-        $order = Order::byOrderItemId($orderItem->id)->first();
-        $product = $orderItem->product;
-        $order->total_price -= $orderItem->quantity * $product->price;
-        $order->save();
-        $product->quantity += $orderItem->quantity;
-        $product->save();
     }
 }

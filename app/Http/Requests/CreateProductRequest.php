@@ -28,9 +28,9 @@ class CreateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scientific_name' => 'required|min:10|max:50',
-            'commercial_name' => 'required|min:10|max:50',
-            'company_name' => 'required|min:10|max:50',
+            'scientific_name' => 'required|min:5|max:50',
+            'commercial_name' => 'required|min:5|max:50',
+            'company_name' => 'required|min:5|max:50',
             'quantity' => 'required',
             'price' => 'required',
             'category_id' => 'required',

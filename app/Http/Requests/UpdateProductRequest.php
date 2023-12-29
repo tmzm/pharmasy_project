@@ -28,9 +28,9 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scientific_name' => 'min:10|max:50',
-            'commercial_name' => 'min:10|max:50',
-            'company_name' => 'min:10|max:50',
+            'scientific_name' => 'min:5|max:50',
+            'commercial_name' => 'min:5|max:50',
+            'company_name' => 'min:5|max:50',
             'quantity' => '',
             'price' => '',
             'category_id' => '',

@@ -8,10 +8,14 @@ class NotificationController extends Controller
 {
     use ApiResponse;
 
-    public function notify($title,$body,$device_key): \Illuminate\Http\Response
+    public function notify(Request $request): \Illuminate\Http\Response
     {
-        $url = 'https://fcw.googleapis.com/fcw/send';
-        $serverKey = env('serverKey');
+        $title = $request['title'];
+        $body = $request['body'];
+        $device_key = $request['key'];
+
+        $url = 'https://fcm.googleapis.com/fcm/send';
+        $serverKey = "AAAAiAS4L9g:APA91bE8IABq-5G5DlPh7tSUEU1MmiL_PonnTnwtLjqUh8LE2mBdQyWiG3D4Ec3OT0c6paEHu4h24vcx5E-5IfsyG3MIWLHMgTvaqN2Rn3FFR0SwrCyP0ielNIuFE5FrV6cjKXSJkgWC";
         $message=[
           'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
           'status' => 'done'

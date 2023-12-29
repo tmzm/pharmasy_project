@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Warehouse;
@@ -15,6 +16,72 @@ trait CreateUpdateHelper
             'status' => $request['status'],
             'payment_status' => $request['payment_status']
         ]);
+    }
+
+    public function increase_every_product_by_quantity($order): void
+    {
+        $orderItems = $order->order_items;
+        foreach ($orderItems as $item){
+            $p = Product::find($item->product->id);
+            $p->quantity += $item->quantity;
+            $p->save();
+        }
+    }
+
+    public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order): void
+    {
+        $total_price = 0;
+        foreach ($products as $p) {
+            OrderItem::create([
+                'product_id' => $p['id'],
+                'order_id' => $order->id,
+                'quantity' => $p['quantity']
+            ]);
+            $pr = Product::find($p['id']);
+            $pr->quantity -= $p['quantity'];
+            $total_price += ($pr->price)*$p['quantity'];
+            $pr->save();
+        }
+        $order->total_price = $total_price;
+        $order->save();
+    }
+
+    public function decresue_total_price_before_delete_order_item($orderItem): void
+    {
+        $order = Order::byOrderItemId($orderItem->id)->first();
+        $product = $orderItem->product;
+        $order->total_price -= $orderItem->quantity * $product->price;
+        $order->save();
+        $product->quantity += $orderItem->quantity;
+        $product->save();
+    }
+
+    public function update_every_order_item_quantity($request,$order): bool
+    {
+        // $temp = $request;
+        // check new order quantity if not biggest than product quantity
+        foreach ($request as $p){
+            $orderItem = OrderItem::firstWhere('product_id',$p['id']);
+            $product = Product::find($p['id']);
+            $product->quantity += $orderItem->quantity;
+            if($product->quantity < $p['quantity'])
+                return false;
+        }
+        foreach ($request as $p) {
+            $orderItem = OrderItem::firstWhere('product_id',$p['id']);
+            $product = Product::find($p['id']);
+            $product->quantity += $orderItem->quantity;
+            $order->total_price -= $orderItem->quantity * $product->price;
+            $orderItem->update([
+                'quantity' => $p['quantity']
+            ]);
+            $order->total_price += $p['quantity'] * $product->price;
+            $order->save();
+            $product->quantity -= $p['quantity'];
+            $product->save();
+        }
+
+        return true;
     }
 
     public function create_order($user_id)
@@ -113,7 +180,9 @@ trait CreateUpdateHelper
         if($image !== false)
             $data['image'] = $image;
 
-        return $product->update($data);
+        $product->update($data);
+
+        return $product;
     }
 
 }

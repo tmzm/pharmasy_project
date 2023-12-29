@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 
 use App\Models\Warehouse;
+use Illuminate\Support\Arr;
 
 trait AuthHelper
 {
@@ -38,7 +39,7 @@ trait AuthHelper
         return false;
     }
 
-    public function update_user($request): array
+    public function update_user($request): mixed
     {
         $data = $request->validated();
 
@@ -54,9 +55,13 @@ trait AuthHelper
             if($image !== false)
                 $data['image'] = $image;
 
-            $warehouse->update($data);
+            $data['name'] = $data['warehouseName'];
 
-            return ['user'=>$user,'warehouse'=>$warehouse];
+            $dataForUser = Arr::except($data, 'warehouseName');
+
+            $warehouse->update($dataForUser);
+
+            return $warehouse;
         }
 
         return $user;

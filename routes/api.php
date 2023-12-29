@@ -28,13 +28,20 @@ Route::group([
 ],function(){
     Route::get('logout',[UserController::class,'destroy']);
 
-    Route::patch('user/update',[UserController::class,'update']);
+    Route::post('user/update',[UserController::class,'update']);
 
     Route::get('user',[UserController::class,'show']);
 
-    Route::post('notify',[NotificationController::class,'create']);
+    Route::post('notify',[NotificationController::class,'notify']);
 
+    Route::get('products',[ProductController::class,'index']);
+    Route::get('product/{product_id}',[ProductController::class,'show']);
+
+    Route::get('orders',[OrderController::class,'index']);
     Route::patch('order/{order_id}/update',[OrderController::class,'update']);
+
+    //all categories
+    Route::get('categories',[CategoryController::class,'index']);
 });
 
 Route::post('register',[UserController::class,'create']);
@@ -48,11 +55,8 @@ Route::post('login',[UserController::class,'store']);
 Route::group([
     'middleware'=>['auth:api']
 ],function(){
-    Route::get('products',[ProductController::class,'index']);
-    Route::get('product/{product_id}',[ProductController::class,'show']);
 
     //orders
-    Route::get('orders',[OrderController::class,'index']);
     Route::get('order/{order_id}',[OrderController::class,'show']);
     Route::post('order/create',[OrderController::class,'create']);
     Route::delete('order/{order_id}/delete',[OrderController::class,'destroy']);
@@ -62,9 +66,6 @@ Route::group([
     Route::get('warehouses',[WarehouseController::class,'index']);
 
     Route::get('warehouse/{warehouse_id}',[WarehouseController::class,'show']);
-
-    //all categories
-    Route::get('categories',[CategoryController::class,'index']);
 
     //favorites
     Route::get('favorites',[FavoriteController::class,'index']);
@@ -81,7 +82,7 @@ Route::group([
 ],function(){
     //products
     Route::post('product/create',[ProductController::class,'create']);
-    Route::patch('product/{product_id}/update',[ProductController::class,'update']);
+    Route::post('product/{product_id}/update',[ProductController::class,'update']);
     Route::delete('product/{product_id}/delete',[ProductController::class,'destroy']);
 
 });
