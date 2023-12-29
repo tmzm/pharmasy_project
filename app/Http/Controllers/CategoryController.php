@@ -11,12 +11,11 @@ class CategoryController extends Controller
     use ApiResponse;
 
     /**
-     * @return Response
      */
-    public function index(): Response
+    public function index()
     {
         $categories = Category::get();
 
-        return count($categories) ? self::apiResponse(200, ReturnMessages::Ok->value, $categories) : self::apiResponse(404, ReturnMessages::NotFound->value);
+        count($categories) ? self::ok($categories) : self::notFound();
     }
 }

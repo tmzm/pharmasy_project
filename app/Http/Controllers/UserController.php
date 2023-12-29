@@ -9,56 +9,46 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
     /**
      * @param CreateUserRequest $request
-     * @return Response
      */
-    public function create(CreateUserRequest $request): Response
+    public function create(CreateUserRequest $request)
     {
-        $user = self::register_user($request);
-
-        return self::apiResponse(200,ReturnMessages::Ok->value,$user,$user->token ?? null);
+        self::register_user($request);
     }
 
     /**
      * @param StoreUserRequest $request
-     * @return Response
      */
-    public function store(StoreUserRequest $request): Response
+    public function store(StoreUserRequest $request)
     {
-        $token = self::login_user($request);
-
-        return $token ? self::apiResponse(200, ReturnMessages::Ok->value, auth()->user(), $token) : self::apiResponse(401, ReturnMessages::UnAuth->value);
+        self::login_user($request);
     }
 
     /**
      * @param UpdateUserRequest $request
-     * @return Response
      */
-    public function update(UpdateUserRequest $request): Response
+    public function update(UpdateUserRequest $request)
     {
-        return self::apiResponse(200,ReturnMessages::Ok->value, self::update_user($request));
+        self::update_user($request);
     }
 
     /**
      * @param Request $request
-     * @return Response
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request)
     {
-        return $request->user()->token()->revoke() ? self::apiResponse(200, ReturnMessages::Ok->value) : self::apiResponse(500, ReturnMessages::Error->value);
+        $request->user()->token()->revoke() ? self::ok() : self::unHandledError();
     }
 
     /**
      * @param Request $request
-     * @return Response
      */
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        return $request->user()->role == 'user' ? self::apiResponse(200, ReturnMessages::Ok->value, $request->user()) : self::apiResponse(200, ReturnMessages::Ok->value, ['user' => $request->user(), 'warehouse' => Warehouse::firstWhere('user_id', $request->user()->id)]);
+        $request->user()->role == 'user' ? self::ok($request->user()) : self::ok(['user' => $request->user(), 'warehouse' => Warehouse::firstWhere('user_id', $request->user()->id)]);
     }
 }

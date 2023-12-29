@@ -23,20 +23,20 @@ trait AuthHelper
 
             $warehouse = self::create_warehouse($data,$user->id);
 
-            return ['user'=>$user,'warehouse'=>$warehouse,'token'=>$token];
+            self::ok(['user'=>$user,'warehouse'=>$warehouse],$token);
         }
 
-        return ['user'=>$user,'token'=>$token];
+        self::ok($user,$token);
     }
 
-    public function login_user($request): mixed
+    public function login_user($request): void
     {
         $data = $request->validated();
 
-        return auth()->attempt($data) ? auth()->user()->createToken('UserToken')->accessToken : false;
+        auth()->attempt($data) ? self::ok(auth()->user(), auth()->user()->createToken('UserToken')->accessToken) : self::unAuth();
     }
 
-    public function update_user($request): mixed
+    public function update_user($request): void
     {
         $data = $request->validated();
 
@@ -58,9 +58,9 @@ trait AuthHelper
 
             $warehouse->update($dataForUser);
 
-            return $warehouse;
+            self::ok($warehouse);
         }
 
-        return $user;
+        self::ok($user);
     }
 }

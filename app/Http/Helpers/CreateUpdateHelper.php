@@ -118,43 +118,52 @@ trait CreateUpdateHelper
         $products = $data['products'];
 
         if(!self::check_products_quantity($products))
-            return false;
+            self::unHandledError();
 
         $order = self::create_order($request->user()->id);
         self::create_order_item_and_reduce_every_product_by_order_quantity($products,$order);
-        return $order;
+        self::ok($order);
     }
 
-    public function update_order_by_request_and_order($request,$order): bool
+    public function update_order_by_request_and_order($request,$order_id): void
     {
+        $order = Order::find($order_id);
+
+        if(!$order)
+            self::notFound();
+
         if($request['status'] ?? $request['payment_status'] ?? false)
             self::update_order_status($order,$request);
 
         if($request['products'] ?? false)
             if(!self::update_every_order_item_quantity($request['products'],$order))
-                return false;
+                self::unHandledError();
 
-        return true;
+        self::ok($order);
     }
 
-    public function delete_order($order): bool
+    public function delete_order($request,$order_id): void
     {
+        $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
+
         if($order) {
             self::increase_every_product_by_quantity($order);
             $order->delete();
-            return true;
+            self::ok();
         }
-        return false;
+        self::notFound();
     }
 
-    public function delete_order_item($orderItem): bool
+    public function delete_order_item($order_item_id): bool
     {
+        $orderItem = OrderItem::find($order_item_id);
+
         if($orderItem){
             self::decresue_total_price_before_delete_order_item($orderItem);
             $orderItem->delete();
-            return true;
+            self::ok();
         }
-        return false;
+        self::notFound();
     }
 
     public function create_product($request)
@@ -168,11 +177,16 @@ trait CreateUpdateHelper
         if($image !== false)
             $data['image'] = $image;
 
-        return Product::create($data);
+        self::ok(Product::create($data));
     }
 
-    public function update_product($request,$product)
+    public function update_product($request,$product_id)
     {
+        $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
+
+        if(!$product)
+            self::notFound();
+
         $data = $request->validated();
 
         $image = self::save_image_to_public_directory($request);
@@ -182,7 +196,20 @@ trait CreateUpdateHelper
 
         $product->update($data);
 
-        return $product;
+        self::ok($product);
+    }
+
+    public function delete_product($request,$product_id): void
+    {
+        $product = Product::byOwnerAndProductId($request->user()->id,$product_id);
+
+        if($product) {
+            $product->delete();
+
+            self::ok();
+        }
+
+        self::notFound();
     }
 
 }

@@ -54,6 +54,6 @@ class CreateUserRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator): void
     {
-        throw new HttpResponseException(self::apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors()));
+        throw new HttpResponseException(self::apiResponse(422,ReturnMessages::ValidateError->value,null,null,$validator->errors()));
     }
 }

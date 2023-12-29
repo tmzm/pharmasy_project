@@ -16,67 +16,49 @@ class ProductController extends Controller
 {
     /**
      * @param Request $request
-     * @return Response
      */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $products = self::filter_products(request(['search', 'category', 'warehouse_id']),$request);
-
-        return count($products) ? self::apiResponse(200, ReturnMessages::Ok->value, $products) : self::apiResponse(404, ReturnMessages::NotFound->value);
+        self::filter_products(request(['search', 'category', 'warehouse_id']),$request);
     }
 
 
     /**
      * @param CreateProductRequest $request
-     * @return Response
      */
-    public function create(CreateProductRequest $request): Response
+    public function create(CreateProductRequest $request)
     {
-        return self::apiResponse(200, ReturnMessages::Ok->value, self::create_product($request));
+        self::create_product($request);
     }
 
 
     /**
      * @param $product_id
-     * @return Response
      */
-    public function show($product_id): Response
+    public function show($product_id)
     {
         $product = Product::find($product_id);
 
-        return $product ? self::apiResponse(200, ReturnMessages::Ok->value, $product) : self::apiResponse(404, ReturnMessages::NotFound->value);
+        $product ? self::ok($product) : self::notFound();
     }
 
 
     /**
      * @param UpdateProductRequest $request
      * @param $product_id
-     * @return Response
-     * @throws ValidationException
      */
-    public function update(UpdateProductRequest $request, $product_id): Response
+    public function update(UpdateProductRequest $request, $product_id)
     {
-        $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
-
-        return $product ? self::apiResponse(200, ReturnMessages::Ok->value, self::update_product($request, $product)) : self::apiResponse(404, ReturnMessages::NotFound->value);
+        self::update_product($request, $product_id);
     }
 
 
     /**
      * @param Request $request
      * @param $product_id
-     * @return Response
      */
-    public function destroy(Request $request, $product_id): Response
+    public function destroy(Request $request, $product_id)
     {
-        $product = Product::byOwnerAndProductId($request->user()->id,$product_id);
-
-        if($product) {
-            $product->delete();
-
-            return self::apiResponse(200, ReturnMessages::Ok->value);
-        }
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        self::delete_product($request,$product_id);
     }
 }

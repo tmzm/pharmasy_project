@@ -9,22 +9,20 @@ use Illuminate\Http\Response;
 class WarehouseController extends Controller
 {/**
      * Display a listing of the resource.
-     * @return Response
      */
-    public function index(): Response
+    public function index()
     {
-        return self::apiResponse(200,ReturnMessages::Ok->value,Warehouse::latest()->get());
+        self::ok(Warehouse::latest()->get());
     }
 
     /**
      * Display the specified resource.
      * @param $warehouse_id
-     * @return Response
      */
-    public function show($warehouse_id): Response
+    public function show($warehouse_id)
     {
         $warehouse = Warehouse::find($warehouse_id);
 
-        return Warehouse::find($warehouse_id) ? self::apiResponse(200, ReturnMessages::Ok->value, $warehouse) : self::apiResponse(404, ReturnMessages::NotFound->value);
+        $warehouse ? self::ok($warehouse) : self::notFound();
     }
 }

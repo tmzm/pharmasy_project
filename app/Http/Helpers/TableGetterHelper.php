@@ -19,13 +19,20 @@ trait TableGetterHelper
         }
     }
 
-    public function filter_products($filters ,Request $request)
+    public function filter_products($filters ,Request $request): void
     {
-        return Product::filter($filters, self::get_request_warehouse_id_by_role($request))->latest()->get();
+        $products = Product::filter($filters, self::get_request_warehouse_id_by_role($request))->latest()->get();
+
+        count($products) ? self::ok($products) : self::notFound();
     }
 
-    public function get_user_orders_or_warehouse_orders(Request $request)
+    public function get_user_orders_or_warehouse_orders(Request $request): void
     {
-        return Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->get();
+        $orders = Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->get();
+
+        if(count($orders))
+            self::ok($orders);
+
+        self::notFound();
     }
 }
