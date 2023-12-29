@@ -54,10 +54,10 @@ class Product extends Model
 
     }
 
-    public function scopeByOwnerAndProductId($query,$user_id,$product_id)
+    public function scopeByOwnerAndProductId($query,$product_id,$user_id)
     {
-        $query->whereHas('warehouse',fn ($query) =>
-            $query->where('user_id',$user_id)->firstWhere('id',$product_id)
+        $query->where('id',$product_id)->whereHas('warehouse',fn ($query) =>
+            $query->where('user_id',$user_id)
         );
     }
 

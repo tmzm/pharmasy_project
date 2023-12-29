@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReturnMessages;
 use App\Models\OrderItem;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class OrderItemController extends Controller
@@ -18,14 +17,9 @@ class OrderItemController extends Controller
     {
         $orderItem = OrderItem::find($order_item_id);
 
-        if($orderItem){
-            $this->decresue_total_price_before_delete_order_item($orderItem);
+        if(self::delete_order_item($orderItem))
+            return self::apiResponse(200,ReturnMessages::Ok->value);
 
-            $orderItem->delete();
-
-            return $this->apiResponse(200,ReturnMessages::Ok->value);
-        }
-
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

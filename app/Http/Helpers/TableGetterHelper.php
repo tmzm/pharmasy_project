@@ -5,11 +5,10 @@ namespace App\Http\Helpers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 
-trait TableHelper
+trait TableGetterHelper
 {
     public function update_every_order_item_quantity($request,$order): bool
     {
@@ -39,41 +38,6 @@ trait TableHelper
         return true;
     }
 
-    public function update_order_status(Order $order,$request) : void
-    {
-        $order->update([
-            'status' => $request['status'],
-            'payment_status' => $request['payment_status']
-        ]);
-    }
-
-    public function create_order($user_id)
-    {
-        return Order::create([
-            'user_id' => $user_id,
-        ]);
-    }
-
-    public function create_warehouse($d,$user_id)
-    {
-        return Warehouse::create([
-            'name' => $d['warehouseName'],
-            'location' => $d['location'],
-            'image' => $d['image'],
-            'user_id' => $user_id
-        ]);
-    }
-
-    public function create_user($data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'phone_number' => $data['phone_number'],
-            'password' => bcrypt($data['password']),
-            'role' => $data['role']
-        ]);
-    }
-
     public function get_request_warehouse_id_by_role(Request $request)
     {
         if ($request->user()->role == 'user')
@@ -85,7 +49,7 @@ trait TableHelper
 
     public function filter_products($filters ,Request $request)
     {
-        return Product::filter($filters, $this->get_request_warehouse_id_by_role($request))->latest()->get();
+        return Product::filter($filters, self::get_request_warehouse_id_by_role($request))->latest()->get();
     }
 
     public function get_user_orders_or_warehouse_orders(Request $request)

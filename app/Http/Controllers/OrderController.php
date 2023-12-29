@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReturnMessages;
+use App\Http\Requests\CreateOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,39 +18,27 @@ class OrderController extends Controller
      */
     public function index(Request $request): Response
     {
-        $orders = $this->get_user_orders_or_warehouse_orders($request);
+        $orders = self::get_user_orders_or_warehouse_orders($request);
 
         if(count($orders))
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$orders);
+            return self::apiResponse(200,ReturnMessages::Ok->value,$orders);
 
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
      * Show the form for creating a new resource.
-     * @param Request $request
+     * @param CreateOrderRequest $request
      * @return Response
-     * @throws ValidationException
      */
-    public function create(Request $request): Response
+    public function create(CreateOrderRequest $request): Response
     {
-        $validator = validator($request->all(),[
-           'products' => 'required',
-        ]);
+        $order = self::create_order_by_request_and_product($request);
 
-        if($validator->fails())
-            return $this->apiResponse(500,ReturnMessages::ValidateError->value,null,null,$validator->errors());
+        if($order === false)
+            return self::apiResponse(500,ReturnMessages::Error->value);
 
-        $data = $validator->validated();
-
-        if(!$this->check_products_quantity($data['products']))
-            return $this->apiResponse(500,ReturnMessages::Error->value);
-
-        $order = $this->create_order($request->user()->id);
-
-        $this->create_order_item_and_reduce_every_product_by_order_quantity($data['products'],$order);
-
-        return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
+        return self::apiResponse(200,ReturnMessages::Ok->value,$order);
     }
 
     /**
@@ -63,9 +52,9 @@ class OrderController extends Controller
         $order = Order::where('id',$order_id)?->firstWhere('user_id',$request->user()->id);
 
         if($order)
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
+            return self::apiResponse(200,ReturnMessages::Ok->value,$order);
 
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 
     /**
@@ -80,18 +69,14 @@ class OrderController extends Controller
         $order = Order::find($order_id);
 
         if(!$order)
-            return $this->apiResponse(404,ReturnMessages::NotFound->value);
+            return self::apiResponse(404,ReturnMessages::NotFound->value);
 
-        if($request['status'] ?? $request['payment_status'] ?? false)
-             $this->update_order_status($order,$request);
-
-        if($request['products'] ?? false)
-            if(!$this->update_every_order_item_quantity($request['products'],$order))
-                return $this->apiResponse(500,ReturnMessages::Error->value);
+        if(!self::update_order_by_request_and_order($request,$order))
+            return self::apiResponse(500,ReturnMessages::Error->value);
 
         $order = Order::find($order_id);
 
-        return $this->apiResponse(200,ReturnMessages::Ok->value,$order);
+        return self::apiResponse(200,ReturnMessages::Ok->value,$order);
     }
 
     /**
@@ -104,14 +89,9 @@ class OrderController extends Controller
     {
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
-        if($order) {
-            $this->increase_every_product_by_quantity($order);
+        if(self::delete_order($order))
+            return self::apiResponse(200,ReturnMessages::Ok->value);
 
-            $order->delete();
-
-            return $this->apiResponse(200,ReturnMessages::Ok->value);
-        }
-
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

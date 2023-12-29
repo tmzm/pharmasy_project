@@ -13,7 +13,7 @@ class WarehouseController extends Controller
      */
     public function index(): Response
     {
-        return $this->apiResponse(200,ReturnMessages::Ok->value,Warehouse::latest()->get());
+        return self::apiResponse(200,ReturnMessages::Ok->value,Warehouse::latest()->get());
     }
 
     /**
@@ -26,8 +26,8 @@ class WarehouseController extends Controller
         $warehouse = Warehouse::find($warehouse_id);
 
         if($warehouse)
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$warehouse);
+            return self::apiResponse(200,ReturnMessages::Ok->value,$warehouse);
 
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 }

@@ -73,9 +73,9 @@ class FavoriteController extends Controller
 
         if($favorite) {
             $favorite->delete();
-            return $this->apiResponse(200, ReturnMessages::Ok->value);
+            return self::apiResponse(200, ReturnMessages::Ok->value);
         }
 
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return self::apiResponse(404,ReturnMessages::NotFound->value);
     }
 }
