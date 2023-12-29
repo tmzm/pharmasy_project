@@ -2,8 +2,6 @@
 
 namespace App\Http\Helpers;
 
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use Exception;
 use Illuminate\Http\Request;

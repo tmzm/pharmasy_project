@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -32,9 +31,7 @@ class ProductController extends Controller
      */
     public function show($product_id)
     {
-        $product = Product::find($product_id);
-
-        $product ? self::ok($product) : self::notFound();
+        self::get_product_by_id($product_id);
     }
 
 

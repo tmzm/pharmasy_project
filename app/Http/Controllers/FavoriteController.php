@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorite;
 use Illuminate\Http\Request;
 
 class FavoriteController extends Controller
@@ -15,9 +14,7 @@ class FavoriteController extends Controller
      */
     public function index(Request $request)
     {
-        $favorites = Favorite::latest()->where('user_id',$request->user()->id)->get();
-
-        count($favorites) ? self::ok($favorites) : self::notFound();
+        self::get_all_favorites_by_user($request);
     }
 
     /**
@@ -27,12 +24,7 @@ class FavoriteController extends Controller
      */
     public function create(Request $request,$product_id)
     {
-        $favorite = Favorite::create([
-           'product_id' => $product_id,
-           'user_id' => $request->user()->id
-        ]);
-
-        $favorite ? self::ok($favorite) : self::unHandledError();
+        self::create_favorite($request->user()->id,$product_id);
     }
 
     /**
@@ -42,9 +34,7 @@ class FavoriteController extends Controller
      */
     public function show(Request $request,$favorite_id)
     {
-        $favorite = Favorite::find($favorite_id)?->firstWhere('user_id',$request->user()->id);
-
-        $favorite ? self::ok($favorite) : self::notFound();
+        self::get_user_favorite_by_id($favorite_id,$request->user()->id);
     }
 
     /**
@@ -54,13 +44,6 @@ class FavoriteController extends Controller
      */
     public function destroy(Request $request,$favorite_id)
     {
-        $favorite = Favorite::find($favorite_id)->firstWhere('user_id',$request->user()->id);
-
-        if($favorite) {
-            $favorite->delete();
-            self::ok();
-        }
-
-        self::notFound();
+        self::delete_user_favorite($favorite_id,$request->user()->id);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateOrderRequest;
-use App\Models\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -33,9 +32,7 @@ class OrderController extends Controller
      */
     public function show(Request $request,$order_id)
     {
-        $order = Order::where('id',$order_id)?->firstWhere('user_id',$request->user()->id);
-
-        $order ? self::ok($order) : self::notFound();
+        self::get_user_order_by_id($order_id,$request->user()->id);
     }
 
     /**

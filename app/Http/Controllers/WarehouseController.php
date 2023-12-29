@@ -19,8 +19,6 @@ class WarehouseController extends Controller
      */
     public function show($warehouse_id)
     {
-        $warehouse = Warehouse::find($warehouse_id);
-
-        $warehouse ? self::ok($warehouse) : self::notFound();
+        self::get_warehouse_by_id($warehouse_id);
     }
 }

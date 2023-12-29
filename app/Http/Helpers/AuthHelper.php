@@ -63,4 +63,14 @@ trait AuthHelper
 
         self::ok($user);
     }
+
+    public function logout_user($request): void
+    {
+        $request->user()->token()->revoke() ? self::ok() : self::unHandledError();
+    }
+
+    public function show_user_details($request): void
+    {
+        $request->user()->role == 'user' ? self::ok($request->user()) : self::ok(Warehouse::firstWhere('user_id', $request->user()->id));
+    }
 }

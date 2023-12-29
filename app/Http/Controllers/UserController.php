@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Models\Warehouse;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -39,7 +38,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        $request->user()->token()->revoke() ? self::ok() : self::unHandledError();
+        self::logout_user($request);
     }
 
     /**
@@ -47,6 +46,6 @@ class UserController extends Controller
      */
     public function show(Request $request)
     {
-        $request->user()->role == 'user' ? self::ok($request->user()) : self::ok(['user' => $request->user(), 'warehouse' => Warehouse::firstWhere('user_id', $request->user()->id)]);
+        self::show_user_details($request);
     }
 }

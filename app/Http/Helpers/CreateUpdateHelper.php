@@ -2,6 +2,7 @@
 
 namespace App\Http\Helpers;
 
+use App\Models\Favorite;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -206,6 +207,28 @@ trait CreateUpdateHelper
         if($product) {
             $product->delete();
 
+            self::ok();
+        }
+
+        self::notFound();
+    }
+
+    public function create_favorite($user_id,$product_id): void
+    {
+        $favorite = Favorite::create([
+            'product_id' => $product_id,
+            'user_id' => $user_id
+        ]);
+
+        $favorite ? self::ok($favorite) : self::unHandledError();
+    }
+
+    public function delete_user_favorite($favorite_id,$user_id): void
+    {
+        $favorite = Favorite::find($favorite_id)->firstWhere('user_id',$user_id);
+
+        if($favorite) {
+            $favorite->delete();
             self::ok();
         }
 
