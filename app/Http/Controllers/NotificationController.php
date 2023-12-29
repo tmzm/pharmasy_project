@@ -59,13 +59,4 @@ class NotificationController extends Controller
 
         return $this->apiResponse(200,'ok',$result);
     }
-
-    /**
-     * create the notification and send it
-     * @param Request $request
-     */
-    public function create(Request $request)
-    {
-        $this->notify($request['title'],$request['body'],$request->user()->device_key);
-    }
 }
