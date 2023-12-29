@@ -25,9 +25,6 @@ class WarehouseController extends Controller
     {
         $warehouse = Warehouse::find($warehouse_id);
 
-        if($warehouse)
-            return self::apiResponse(200,ReturnMessages::Ok->value,$warehouse);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return Warehouse::find($warehouse_id) ? self::apiResponse(200, ReturnMessages::Ok->value, $warehouse) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 }

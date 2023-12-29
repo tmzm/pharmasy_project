@@ -32,10 +32,7 @@ class UserController extends Controller
     {
         $token = self::login_user($request);
 
-        if($token)
-            return self::apiResponse(200,ReturnMessages::Ok->value,auth()->user(),$token);
-
-        return self::apiResponse(401,ReturnMessages::UnAuth->value);
+        return $token ? self::apiResponse(200, ReturnMessages::Ok->value, auth()->user(), $token) : self::apiResponse(401, ReturnMessages::UnAuth->value);
     }
 
     /**
@@ -44,9 +41,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request): Response
     {
-        $user = self::update_user($request);
-
-        return self::apiResponse(200,ReturnMessages::Ok->value,$user);
+        return self::apiResponse(200,ReturnMessages::Ok->value, self::update_user($request));
     }
 
     /**
@@ -55,10 +50,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request): Response
     {
-        if($request->user()->token()->revoke())
-            return self::apiResponse(200,ReturnMessages::Ok->value);
-
-        return self::apiResponse(500,ReturnMessages::Error->value);
+        return $request->user()->token()->revoke() ? self::apiResponse(200, ReturnMessages::Ok->value) : self::apiResponse(500, ReturnMessages::Error->value);
     }
 
     /**
@@ -67,9 +59,6 @@ class UserController extends Controller
      */
     public function show(Request $request): Response
     {
-        if($request->user()->role == 'user')
-             return self::apiResponse(200,ReturnMessages::Ok->value,$request->user());
-
-        return self::apiResponse(200,ReturnMessages::Ok->value,['user'=>$request->user(),'warehouse'=>Warehouse::firstWhere('user_id',$request->user()->id)]);
+        return $request->user()->role == 'user' ? self::apiResponse(200, ReturnMessages::Ok->value, $request->user()) : self::apiResponse(200, ReturnMessages::Ok->value, ['user' => $request->user(), 'warehouse' => Warehouse::firstWhere('user_id', $request->user()->id)]);
     }
 }

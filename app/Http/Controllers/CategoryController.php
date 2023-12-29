@@ -17,9 +17,6 @@ class CategoryController extends Controller
     {
         $categories = Category::get();
 
-        if(count($categories))
-            return self::apiResponse(200,ReturnMessages::Ok->value,$categories);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return count($categories) ? self::apiResponse(200, ReturnMessages::Ok->value, $categories) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 }

@@ -35,10 +35,7 @@ class OrderController extends Controller
     {
         $order = self::create_order_by_request_and_product($request);
 
-        if($order === false)
-            return self::apiResponse(500,ReturnMessages::Error->value);
-
-        return self::apiResponse(200,ReturnMessages::Ok->value,$order);
+        return $order === false ? self::apiResponse(500, ReturnMessages::Error->value) : self::apiResponse(200, ReturnMessages::Ok->value, $order);
     }
 
     /**
@@ -51,10 +48,7 @@ class OrderController extends Controller
     {
         $order = Order::where('id',$order_id)?->firstWhere('user_id',$request->user()->id);
 
-        if($order)
-            return self::apiResponse(200,ReturnMessages::Ok->value,$order);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return $order ? self::apiResponse(200, ReturnMessages::Ok->value, $order) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 
     /**
@@ -89,9 +83,6 @@ class OrderController extends Controller
     {
         $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
 
-        if(self::delete_order($order))
-            return self::apiResponse(200,ReturnMessages::Ok->value);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return self::delete_order($order) ? self::apiResponse(200, ReturnMessages::Ok->value) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 }

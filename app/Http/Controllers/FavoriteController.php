@@ -20,10 +20,7 @@ class FavoriteController extends Controller
     {
         $favorites = Favorite::latest()->where('user_id',$request->user()->id)->get();
 
-        if(count($favorites))
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorites);
-
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return count($favorites) ? $this->apiResponse(200, ReturnMessages::Ok->value, $favorites) : $this->apiResponse(404, ReturnMessages::NotFound->value);
     }
 
     /**
@@ -39,10 +36,7 @@ class FavoriteController extends Controller
            'user_id' => $request->user()->id
         ]);
 
-        if($favorite)
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorite);
-
-        return $this->apiResponse(500,ReturnMessages::Error->value);
+        return $favorite ? $this->apiResponse(200, ReturnMessages::Ok->value, $favorite) : $this->apiResponse(500, ReturnMessages::Error->value);
     }
 
     /**
@@ -55,10 +49,7 @@ class FavoriteController extends Controller
     {
         $favorite = Favorite::find($favorite_id)?->firstWhere('user_id',$request->user()->id);
 
-        if($favorite)
-            return $this->apiResponse(200,ReturnMessages::Ok->value,$favorite);
-
-        return $this->apiResponse(404,ReturnMessages::NotFound->value);
+        return $favorite ? $this->apiResponse(200, ReturnMessages::Ok->value, $favorite) : $this->apiResponse(404, ReturnMessages::NotFound->value);
     }
 
     /**

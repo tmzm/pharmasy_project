@@ -22,10 +22,7 @@ class ProductController extends Controller
     {
         $products = self::filter_products(request(['search', 'category', 'warehouse_id']),$request);
 
-        if(count($products))
-            return self::apiResponse(200,ReturnMessages::Ok->value,$products);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return count($products) ? self::apiResponse(200, ReturnMessages::Ok->value, $products) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 
 
@@ -47,10 +44,7 @@ class ProductController extends Controller
     {
         $product = Product::find($product_id);
 
-        if($product)
-            return self::apiResponse(200,ReturnMessages::Ok->value,$product);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return $product ? self::apiResponse(200, ReturnMessages::Ok->value, $product) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 
 
@@ -64,10 +58,7 @@ class ProductController extends Controller
     {
         $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
 
-        if($product)
-            return self::apiResponse(200, ReturnMessages::Ok->value, self::update_product($request,$product));
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return $product ? self::apiResponse(200, ReturnMessages::Ok->value, self::update_product($request, $product)) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 
 

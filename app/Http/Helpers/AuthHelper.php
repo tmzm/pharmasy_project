@@ -33,10 +33,7 @@ trait AuthHelper
     {
         $data = $request->validated();
 
-        if (auth()->attempt($data))
-            return auth()->user()->createToken('UserToken')->accessToken;
-
-        return false;
+        return auth()->attempt($data) ? auth()->user()->createToken('UserToken')->accessToken : false;
     }
 
     public function update_user($request): mixed

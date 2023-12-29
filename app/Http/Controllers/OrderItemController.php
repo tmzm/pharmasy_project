@@ -17,9 +17,6 @@ class OrderItemController extends Controller
     {
         $orderItem = OrderItem::find($order_item_id);
 
-        if(self::delete_order_item($orderItem))
-            return self::apiResponse(200,ReturnMessages::Ok->value);
-
-        return self::apiResponse(404,ReturnMessages::NotFound->value);
+        return self::delete_order_item($orderItem) ? self::apiResponse(200, ReturnMessages::Ok->value) : self::apiResponse(404, ReturnMessages::NotFound->value);
     }
 }
