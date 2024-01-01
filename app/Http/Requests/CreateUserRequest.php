@@ -43,7 +43,7 @@ class CreateUserRequest extends FormRequest
                 'password' => 'required|min:8|max:30',
                 'role' => 'required',
                 'warehouseName' => 'required|min:3|max:50',
-                'image' => ['required','image','mimes:jpg,jpeg,png,svg'],
+                'image' => ['image','mimes:jpg,jpeg,png,svg'],
                 'location' => 'required|min:10|max:50',
             ];
     }

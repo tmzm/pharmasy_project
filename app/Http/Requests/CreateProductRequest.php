@@ -36,7 +36,7 @@ class CreateProductRequest extends FormRequest
             'category_id' => 'required',
             'warehouse_id' => '',
             'expiration' => 'required|date',
-            'image' => ['required','image','mimes:jpg,jpeg,png,svg']
+            'image' => ['image','mimes:jpg,jpeg,png,svg']
         ];
     }
 
