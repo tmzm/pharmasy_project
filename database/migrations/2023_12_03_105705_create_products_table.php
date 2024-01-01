@@ -20,7 +20,7 @@ return new class extends Migration
             $table->double('price');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('warehouse_id')->constrained()->cascadeOnDelete();
-            $table->dateTime('expiration');
+            $table->date('expiration');
             $table->string('image')->nullable();
             $table->timestamps();
         });

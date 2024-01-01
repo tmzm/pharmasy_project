@@ -36,6 +36,15 @@ class UserController extends Controller
     /**
      * @param Request $request
      */
+    public function edit(Request $request)
+    {
+        self::edit_fcm_token($request);
+    }
+
+
+    /**
+     * @param Request $request
+     */
     public function destroy(Request $request)
     {
         self::logout_user($request);

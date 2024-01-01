@@ -5,6 +5,7 @@ namespace App\Http\Helpers;
 use App\Models\Product;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 trait LogicHelper
 {
@@ -23,13 +24,19 @@ trait LogicHelper
         return false;
     }
 
-    public function check_products_quantity($data): bool
+    public function delete_image($image_path): void
+    {
+        if (File::exists($image_path)) {
+            File::delete($image_path);
+        }
+    }
+
+    public function check_products_quantity($data): void
     {
         foreach ($data as $p) {
             $product = Product::find($p['id']);
-            if($product->quantity <= 0 || $product->quantity < $p['quantity'])
-                return false;
+            if(!$product || $product->quantity <= 0 || $product->quantity < $p['quantity'])
+                self::unHandledError();
         }
-        return true;
     }
 }

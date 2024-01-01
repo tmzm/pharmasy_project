@@ -2,21 +2,28 @@
 
 namespace App\Http\Helpers;
 
+use App\Http\Controllers\NotificationController;
 use App\Models\Favorite;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Warehouse;
+use GuzzleHttp\Exception\GuzzleException;
 
 trait CreateUpdateHelper
 {
-    public function update_order_status(Order $order,$request) : void
+    public function update_order_status($order,$request) : void
     {
         $order->update([
             'status' => $request['status'],
             'payment_status' => $request['payment_status']
         ]);
+
+        $user = User::find($order->user_id);
+
+        if($user->device_key !== null)
+            self::send_order_notification_to_user($request,$user);
     }
 
     public function increase_every_product_by_quantity($order): void
@@ -27,6 +34,18 @@ trait CreateUpdateHelper
             $p->quantity += $item->quantity;
             $p->save();
         }
+    }
+
+    public function decrease_total_price_of_orders_that_have_this_product($product): void
+    {
+        $orders = Order::byProduct($product->id)->get();
+
+        if(count($orders))
+            foreach ($orders as $order) {
+                $order_item = OrderItem::byOrderAndProduct($order->id,$product->id)->first();
+                $order->total_price -= $product->price * $order_item->quantity;
+                $order->save();
+            }
     }
 
     public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order): void
@@ -57,7 +76,7 @@ trait CreateUpdateHelper
         $product->save();
     }
 
-    public function update_every_order_item_quantity($request,$order): bool
+    public function update_every_order_item_quantity($request,$order): void
     {
         // $temp = $request;
         // check new order quantity if not biggest than product quantity
@@ -66,7 +85,7 @@ trait CreateUpdateHelper
             $product = Product::find($p['id']);
             $product->quantity += $orderItem->quantity;
             if($product->quantity < $p['quantity'])
-                return false;
+                self::unHandledError('some of the products could not be updated');
         }
         foreach ($request as $p) {
             $orderItem = OrderItem::firstWhere('product_id',$p['id']);
@@ -81,8 +100,6 @@ trait CreateUpdateHelper
             $product->quantity -= $p['quantity'];
             $product->save();
         }
-
-        return true;
     }
 
     public function create_order($user_id)
@@ -108,7 +125,8 @@ trait CreateUpdateHelper
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
             'password' => bcrypt($data['password']),
-            'role' => $data['role']
+            'role' => $data['role'],
+            'device_key' => $data['device_key'] ?? null
         ]);
     }
 
@@ -118,11 +136,12 @@ trait CreateUpdateHelper
 
         $products = $data['products'];
 
-        if(!self::check_products_quantity($products))
-            self::unHandledError();
+        self::check_products_quantity($products);
 
         $order = self::create_order($request->user()->id);
+
         self::create_order_item_and_reduce_every_product_by_order_quantity($products,$order);
+
         self::ok($order);
     }
 
@@ -137,8 +156,7 @@ trait CreateUpdateHelper
             self::update_order_status($order,$request);
 
         if($request['products'] ?? false)
-            if(!self::update_every_order_item_quantity($request['products'],$order))
-                self::unHandledError();
+            self::update_every_order_item_quantity($request['products'],$order);
 
         self::ok($order);
     }
@@ -202,9 +220,25 @@ trait CreateUpdateHelper
 
     public function delete_product($request,$product_id): void
     {
-        $product = Product::byOwnerAndProductId($request->user()->id,$product_id);
+        $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
 
         if($product) {
+            self::decrease_total_price_of_orders_that_have_this_product($product);
+
+            $users = User::byProductOrders($product)->get();
+
+            foreach ($users as $user){
+                if($user->device_key !== null){
+                    (new NotificationController)->notify(
+                        'series order changes',
+                        'an order product: '.$product->commercial_name .' no longer available',
+                        $user->device_key
+                    );
+                }
+            }
+
+            self::delete_image(public_path($product->image));
+
             $product->delete();
 
             self::ok();
@@ -215,12 +249,15 @@ trait CreateUpdateHelper
 
     public function create_favorite($user_id,$product_id): void
     {
+        if(Favorite::firstWhere('user_id',$user_id)?->where('product_id',$product_id))
+            self::unHandledError('favorite already exists');
+
         $favorite = Favorite::create([
             'product_id' => $product_id,
             'user_id' => $user_id
         ]);
 
-        $favorite ? self::ok($favorite) : self::unHandledError();
+        $favorite ? self::ok($favorite) : self::unHandledError("Couldn't create this favorite");
     }
 
     public function delete_user_favorite($favorite_id,$user_id): void

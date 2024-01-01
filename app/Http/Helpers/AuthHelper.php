@@ -2,6 +2,7 @@
 
 namespace App\Http\Helpers;
 
+use App\Http\Controllers\NotificationController;
 use App\Models\Warehouse;
 use Illuminate\Support\Arr;
 
@@ -72,5 +73,31 @@ trait AuthHelper
     public function show_user_details($request): void
     {
         $request->user()->role == 'user' ? self::ok($request->user()) : self::ok(Warehouse::firstWhere('user_id', $request->user()->id));
+    }
+
+    public function send_order_notification_to_user($request,$user): void
+    {
+        if(isset($request['status']))
+            (new NotificationController)->notify(
+                'the order has updated',
+                'the order new status is: ' . $request['status'],
+                $user->device_key
+            );
+        if(isset($request['payment_status']))
+            if($request['payment_status']) $paid = 'paid'; else $paid = 'not paid';
+        (new NotificationController)->notify(
+            'the order has updated',
+            'the order set to: ' . $paid,
+            $user->device_key
+        );
+    }
+
+    public function edit_fcm_token($request): void
+    {
+        $user = $request->user();
+
+        isset($request['fcm_token']) ? $user->device_key = $request['fcm_token'] : self::unHandledError();
+
+        self::ok();
     }
 }

@@ -32,6 +32,8 @@ Route::group([
 
     Route::get('user',[UserController::class,'show']);
 
+    Route::post('user/fcm_token_edit',[UserController::class,'edit']);
+
     Route::post('notify',[NotificationController::class,'notify']);
 
     Route::get('products',[ProductController::class,'index']);

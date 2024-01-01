@@ -27,6 +27,15 @@ class Order extends Model
         );
     }
 
+    public function scopeByProduct($query,$product_id)
+    {
+        $query->whereHas('order_items',fn($query)=>
+        $query->whereHas('product',fn($query)=>
+        $query->where('id',$product_id)
+        )
+        );
+    }
+
     protected $guarded = [];
 
     protected $with = ['user','order_items'];

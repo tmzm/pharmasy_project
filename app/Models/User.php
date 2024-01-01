@@ -12,6 +12,14 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function scopeByProductOrders($query,$product)
+    {
+        $query->whereHas('orders',fn($query)=>
+        $query->whereHas('order_items',fn($query)=>
+        $query->whereHas('product',fn($query)=>
+        $query->where('id',$product->id)
+        )));
+    }
     /**
      * The attributes that are mass assignable.
      *

@@ -2,61 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class NotificationController extends Controller
 {
     use ApiResponse;
 
-    public function notify(Request $request): \Illuminate\Http\Response
+    /**
+     * @throws GuzzleException
+     */
+    public function notify($title, $body, $key)
     {
-        $title = $request['title'];
-        $body = $request['body'];
-        $device_key = $request['key'];
+        $serverKey = env('KEY');
 
-        $url = 'https://fcm.googleapis.com/fcm/send';
-        $serverKey = "AAAAiAS4L9g:APA91bE8IABq-5G5DlPh7tSUEU1MmiL_PonnTnwtLjqUh8LE2mBdQyWiG3D4Ec3OT0c6paEHu4h24vcx5E-5IfsyG3MIWLHMgTvaqN2Rn3FFR0SwrCyP0ielNIuFE5FrV6cjKXSJkgWC";
-        $message=[
-          'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-          'status' => 'done'
-        ];
+        $client = new Client([
+            'verify' => false,
+            'headers' => [
+                'Authorization' => 'key=' . $serverKey,
+                'Content-Type' => 'application/json',
+            ],
+        ]);
 
-        $data = [
-            'registration_ids' => [$device_key],
+        $message = [
             'notification' => [
                 'title' => $title,
                 'body' => $body,
-                'sound' => 'default'
             ],
-            'data' => $message,
-            'priority' => 'high'
+            'to' => $key,
+            'message_id' => uniqid()
         ];
 
-        $encodeData = json_encode($data);
-        $header = [
-          'Authentication:key=' . $serverKey,
-          'Content-Type: application/json'
-        ];
+        try {
+            $client->post('https://fcm.googleapis.com/fcm/send', [
+                'json' => $message,
+            ]);
+        }catch (\Exception $e){
 
-        $ch = curl_init();
-
-        curl_setopt($ch,CURLOPT_URL,$url);
-        curl_setopt($ch,CURLOPT_POST,true);
-        curl_setopt($ch,CURLOPT_HTTPHEADER,$header);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,0);
-        curl_setopt($ch,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
-        curl_setopt($ch,CURLOPT_POSTFIELDS,$encodeData);
-
-        $result = curl_exec($ch);
-
-        if($result === false){
-            return $this->apiResponse(500,'error');
         }
-
-        curl_close($ch);
-
-        return $this->apiResponse(200,'ok',$result);
     }
 }

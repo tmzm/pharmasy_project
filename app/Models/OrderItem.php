@@ -22,6 +22,17 @@ class OrderItem extends Model
         );
     }
 
+    public function scopeByOrderAndProduct($query,$order_id,$product_id)
+    {
+        $query->whereHas('order',fn($query)=>
+        $query->where('id',$order_id)
+        );
+
+        $query->whereHas('product',fn($query)=>
+        $query->where('id',$product_id)
+        );
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);

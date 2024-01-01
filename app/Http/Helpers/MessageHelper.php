@@ -12,9 +12,10 @@ trait MessageHelper
         throw new HttpResponseException(self::apiResponse(200,ReturnMessages::Ok->value,$data,$token));
     }
 
-    public function unHandledError()
+    public function unHandledError($error = null)
     {
-        throw new HttpResponseException(self::apiResponse(500,ReturnMessages::Error->value));
+        $error !== null ? $error = ': ' . $error : $error = null;
+        throw new HttpResponseException(self::apiResponse(500,ReturnMessages::Error->value . $error));
     }
 
     public function unAuth()

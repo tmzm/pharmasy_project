@@ -56,9 +56,9 @@ class Product extends Model
 
     public function scopeByOwnerAndProductId($query,$product_id,$user_id)
     {
-        $query->where('id',$product_id)->whereHas('warehouse',fn ($query) =>
+        $query->where('id',$product_id,fn($query)=>$query->whereHas('warehouse',fn ($query) =>
             $query->where('user_id',$user_id)
-        );
+        ));
     }
 
     public function warehouse()
@@ -71,9 +71,9 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function order_item()
+    public function order_items()
     {
-        return $this->hasOne(OrderItem::class);
+        return $this->hasMany(OrderItem::class);
     }
 
 }

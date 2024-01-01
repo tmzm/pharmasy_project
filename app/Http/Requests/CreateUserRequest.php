@@ -34,7 +34,7 @@ class CreateUserRequest extends FormRequest
                 'name' => 'required|min:3|max:50',
                 'phone_number' => 'required|unique:users,phone_number',
                 'password' => 'required|min:8|max:30',
-                'role' => 'required'
+                'role' => 'required',
             ];
         else
             return [
