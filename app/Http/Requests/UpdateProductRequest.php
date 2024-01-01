@@ -36,7 +36,7 @@ class UpdateProductRequest extends FormRequest
             'category_id' => '',
             'warehouse_id' => '',
             'expiration' => 'date',
-            'image' => ['image','mimes:jpg,jpeg,png,svg']
+            // 'image' => ['image','mimes:jpg,jpeg,png,svg']
         ];
     }
 

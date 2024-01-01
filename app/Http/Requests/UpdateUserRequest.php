@@ -38,7 +38,7 @@ class UpdateUserRequest extends FormRequest
                 'phone_number' => 'unique:users,phone_number',
                 'warehouseName' => 'min:3|max:50',
                 'location' => 'min:10|max:50',
-                'image' => ['image','mimes:jpg,jpeg,png,svg'],
+                // 'image' => ['image','mimes:jpg,jpeg,png,svg'],
             ];
     }
 
