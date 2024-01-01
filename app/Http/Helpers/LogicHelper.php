@@ -14,7 +14,7 @@ trait LogicHelper
         try{
             if ($request->hasfile('image')) {
                 $image = $request->file('image');
-                $imageName = time().'.'.$request->file('image')->getClientOriginalExtension();
+                $imageName = time().'_'.$request->file('image')->getBasename().'.'.$request->file('image')->getClientOriginalExtension();
                 copy($image, public_path('images/' . $imageName));
                 return '/images/' .  $imageName;
             }
