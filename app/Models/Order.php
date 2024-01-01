@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
+/**
+ * @method static byOrderItemId($id)
+ * @method static byProduct($id)
+ * @method static byWarehouseIdOrUser($id, Request $request)
+ */
 class Order extends Model
 {
     use HasFactory;

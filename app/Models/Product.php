@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static byOwnerAndProductId($product_id, $id)
+ * @method static filter($filters, mixed $get_request_warehouse_id_by_role)
+ */
 class Product extends Model
 {
     use HasFactory;

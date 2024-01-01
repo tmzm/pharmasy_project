@@ -4,6 +4,7 @@ namespace App\Http\Helpers;
 
 use App\Http\Controllers\NotificationController;
 use App\Models\Warehouse;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 
 trait AuthHelper
@@ -75,7 +76,10 @@ trait AuthHelper
         $request->user()->role == 'user' ? self::ok($request->user()) : self::ok(Warehouse::firstWhere('user_id', $request->user()->id));
     }
 
-    public function send_order_notification_to_user($request,$user): void
+    /**
+     * @throws GuzzleException
+     */
+    public function send_order_notification_to_user($request, $user): void
     {
         if(isset($request['status']))
             (new NotificationController)->notify(

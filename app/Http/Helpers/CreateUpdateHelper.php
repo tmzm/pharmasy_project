@@ -185,7 +185,7 @@ trait CreateUpdateHelper
         self::notFound();
     }
 
-    public function create_product($request)
+    public function create_product($request): void
     {
         $data = $request->validated();
 
@@ -199,7 +199,7 @@ trait CreateUpdateHelper
         self::ok(Product::create($data));
     }
 
-    public function update_product($request,$product_id)
+    public function update_product($request,$product_id): void
     {
         $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
 
@@ -218,7 +218,10 @@ trait CreateUpdateHelper
         self::ok($product);
     }
 
-    public function delete_product($request,$product_id): void
+    /**
+     * @throws GuzzleException
+     */
+    public function delete_product($request, $product_id): void
     {
         $product = Product::byOwnerAndProductId($product_id,$request->user()->id)->first();
 
