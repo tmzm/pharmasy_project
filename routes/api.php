@@ -60,7 +60,7 @@ Route::group([
 
     //orders
     Route::get('order/{order_id}',[OrderController::class,'show']);
-    Route::post('order/create',[OrderController::class,'create']);
+    Route::post('order/orderCreate',[OrderController::class,'create']);
     Route::delete('order/{order_id}/delete',[OrderController::class,'destroy']);
     Route::delete('orderItem/{orderItem_id}/delete',[OrderItemController::class,'destroy']);
 
