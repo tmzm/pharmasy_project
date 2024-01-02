@@ -48,7 +48,7 @@ trait CreateUpdateHelper
             }
     }
 
-    public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order)
+    public function create_order_item_and_reduce_every_product_by_order_quantity($products,$order): void
     {
         $total_price = 0;
         foreach ($products as $p) {
@@ -64,8 +64,6 @@ trait CreateUpdateHelper
         }
         $order->total_price = $total_price;
         $order->save();
-
-        return $order;
     }
 
     public function decresue_total_price_before_delete_order_item($orderItem): void
@@ -142,9 +140,9 @@ trait CreateUpdateHelper
 
         $order = self::create_order($request->user()->id);
 
-        $order = self::create_order_item_and_reduce_every_product_by_order_quantity($products,$order);
+        self::create_order_item_and_reduce_every_product_by_order_quantity($products,$order);
 
-        self::ok($order);
+        self::ok($order->with('order_items'));
     }
 
     public function update_order_by_request_and_order($request,$order_id): void
