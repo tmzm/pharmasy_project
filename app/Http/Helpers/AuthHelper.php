@@ -102,6 +102,8 @@ trait AuthHelper
 
         isset($request['fcm_token']) ? $user->device_key = $request['fcm_token'] : self::unHandledError();
 
+        $user->save();
+
         self::ok();
     }
 }

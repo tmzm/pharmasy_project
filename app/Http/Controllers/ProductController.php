@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -48,6 +49,7 @@ class ProductController extends Controller
     /**
      * @param Request $request
      * @param $product_id
+     * @throws GuzzleException
      */
     public function destroy(Request $request, $product_id)
     {
