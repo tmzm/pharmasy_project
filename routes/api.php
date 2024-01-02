@@ -40,7 +40,7 @@ Route::group([
     Route::get('product/{product_id}',[ProductController::class,'show']);
 
     Route::get('orders',[OrderController::class,'index']);
-    Route::patch('order/{order_id}/update',[OrderController::class,'update']);
+    Route::post('order/{order_id}/update',[OrderController::class,'update']);
 
     //all categories
     Route::get('categories',[CategoryController::class,'index']);
