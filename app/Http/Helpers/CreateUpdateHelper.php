@@ -130,11 +130,10 @@ trait CreateUpdateHelper
         ]);
     }
 
-    public function create_order_by_request($request): mixed
+    public function create_order_by_request($request): void
     {
-        $data = $request->validated();
 
-        $products = $data['products'];
+        isset($request['products']) ? $products = $request['products'] : self::unHandledError('No Products found');
 
         self::check_products_quantity($products);
 
@@ -142,7 +141,9 @@ trait CreateUpdateHelper
 
         self::create_order_item_and_reduce_every_product_by_order_quantity($products,$order);
 
-        self::ok($order->with('order_items'));
+        $order = Order::find($order->id);
+
+        self::ok($order);
     }
 
     public function update_order_by_request_and_order($request,$order_id): void

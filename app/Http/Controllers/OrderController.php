@@ -18,9 +18,9 @@ class OrderController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     * @param CreateOrderRequest $request
+     * @param Request $request
      */
-    public function create(CreateOrderRequest $request)
+    public function create(Request $request)
     {
         self::create_order_by_request($request);
     }
