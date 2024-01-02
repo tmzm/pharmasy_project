@@ -114,7 +114,7 @@ trait CreateUpdateHelper
         return Warehouse::create([
             'name' => $d['warehouseName'],
             'location' => $d['location'],
-            'image' => $d['image'],
+            'image' => $d['image'] ?? null,
             'user_id' => $user_id
         ]);
     }
