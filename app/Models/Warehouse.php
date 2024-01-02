@@ -18,11 +18,6 @@ class Warehouse extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-    }
-
     public function warehouse_owner()
     {
         return $this->belongsTo(user::class,'user_id');

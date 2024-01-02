@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 
 use App\Http\Controllers\NotificationController;
+use App\Models\User;
 use App\Models\Warehouse;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
@@ -92,6 +93,16 @@ trait AuthHelper
         (new NotificationController)->notify(
             'the order has updated',
             'the order set to: ' . $paid,
+            $user->device_key
+        );
+    }
+
+    public function send_order_notification_to_warehouse_owner($product,$user_sender): void
+    {
+        $user = User::whereHas('warehouse')->firstWhere('id',$product->warehouse_id);
+        (new NotificationController)->notify(
+            'someone order from you',
+            $user_sender->name . ' order from you',
             $user->device_key
         );
     }

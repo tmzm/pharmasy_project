@@ -23,6 +23,7 @@ class User extends Authenticatable
         $query->where('id',$product->id)
         )));
     }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -58,5 +59,10 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class);
     }
 }
