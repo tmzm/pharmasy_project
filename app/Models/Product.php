@@ -60,9 +60,9 @@ class Product extends Model
 
     public function scopeByOwnerAndProductId($query,$product_id,$user_id)
     {
-        $query->where('id',$product_id,fn($query)=>$query->whereHas('warehouse',fn ($query) =>
+        $query->where('id',$product_id)->whereHas('warehouse',fn ($query) =>
             $query->where('user_id',$user_id)
-        ));
+        );
     }
 
     public function warehouse()
