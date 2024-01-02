@@ -6,10 +6,10 @@ class OrderItemController extends Controller
 {
     /**
      * Remove the specified resource from storage.
-     * @param $order_item_id
+     * @param $orderitem_id
      */
-    public function destroy($order_item_id)
+    public function destroy($orderitem_id)
     {
-        self::delete_order_item($order_item_id);
+        self::delete_order_item($orderitem_id);
     }
 }
