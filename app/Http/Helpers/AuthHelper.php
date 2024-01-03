@@ -99,7 +99,7 @@ trait AuthHelper
 
     public function send_order_notification_to_warehouse_owner($product,$user_sender): void
     {
-        $user = User::whereHas('warehouse')->firstWhere('id',$product->warehouse_id);
+        $user = Warehouse::firstWhere('id',$product->warehouse_id)->warehouse_owner;
         (new NotificationController)->notify(
             'someone order from you',
             $user_sender->name . ' order from you',
