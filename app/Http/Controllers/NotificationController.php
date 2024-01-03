@@ -34,8 +34,12 @@ class NotificationController extends Controller
             'message_id' => uniqid()
         ];
 
+        try {
             $client->post('https://fcm.googleapis.com/fcm/send', [
                 'json' => $message,
             ]);
+        }catch (\Exception $e){
+
+        }
     }
 }
