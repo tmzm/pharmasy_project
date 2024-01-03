@@ -203,6 +203,8 @@ trait CreateUpdateHelper
 
         if($image !== false)
             $data['image'] = $image;
+        else
+            $data['image'] = '/images/noImage.jpg';
 
         self::ok(Product::create($data));
     }
