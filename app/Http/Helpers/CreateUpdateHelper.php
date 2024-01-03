@@ -262,7 +262,7 @@ trait CreateUpdateHelper
 
     public function create_favorite($user_id,$product_id): void
     {
-        if(Favorite::firstWhere('user_id',$user_id)?->where('product_id',$product_id))
+        if(Favorite::where('user_id',$user_id)?->firstWhere('product_id',$product_id))
             self::unHandledError('favorite already exists');
 
         $favorite = Favorite::create([
