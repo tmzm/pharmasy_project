@@ -155,7 +155,7 @@ trait CreateUpdateHelper
 
     public function update_order_by_request_and_order($request,$order_id): void
     {
-        $order = Order::where('user_id',$request->user()->id)->firstWhere('id',$order_id);
+        $order = Order::firstWhere('id',$order_id);
 
         if(!$order)
             self::notFound();
@@ -171,7 +171,7 @@ trait CreateUpdateHelper
 
     public function delete_order($request,$order_id): void
     {
-        $order = Order::find($order_id)?->firstWhere('user_id',$request->user()->id);
+        $order = Order::find($order_id);
 
         if($order) {
             self::increase_every_product_by_quantity($order);
