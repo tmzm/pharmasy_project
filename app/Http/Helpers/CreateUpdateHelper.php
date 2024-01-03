@@ -273,7 +273,7 @@ trait CreateUpdateHelper
 
     public function delete_user_favorite($favorite_id,$user_id): void
     {
-        $favorite = Favorite::find($favorite_id)->firstWhere('user_id',$user_id);
+        $favorite = Favorite::find($favorite_id)?->firstWhere('user_id',$user_id);
 
         if($favorite) {
             $favorite->delete();
