@@ -36,7 +36,7 @@ trait TableGetterHelper
 
     public function get_user_or_warehouse_orders(Request $request): void
     {
-        $orders = Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->get();
+        $orders = Order::byWarehouseIdOrUser(Warehouse::firstWhere('user_id',$request->user()->id)?->id,$request)->latest()->get();
 
         if(count($orders))
             self::ok($orders);

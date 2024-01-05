@@ -13,7 +13,7 @@ class NotificationController extends Controller
     /**
      * @throws GuzzleException
      */
-    public function notify($title, $body, $key)
+    public function notify($title, $body, $key): void
     {
         $serverKey = 'AAAAiAS4L9g:APA91bE8IABq-5G5DlPh7tSUEU1MmiL_PonnTnwtLjqUh8LE2mBdQyWiG3D4Ec3OT0c6paEHu4h24vcx5E-5IfsyG3MIWLHMgTvaqN2Rn3FFR0SwrCyP0ielNIuFE5FrV6cjKXSJkgWC';
 

@@ -29,7 +29,7 @@ class OrderController extends Controller
      * @param Request $request
      * @param $order_id
      */
-    public function show(Request $request,$order_id)
+    public function show(Request $request,$order_id): void
     {
         self::get_user_order_by_id($order_id,$request->user()->id);
     }
@@ -39,7 +39,7 @@ class OrderController extends Controller
      * @param Request $request
      * @param $order_id
      */
-    public function update(Request $request, $order_id)
+    public function update(Request $request, $order_id): void
     {
         self::update_order_by_request_and_order($request,$order_id);
     }
@@ -49,7 +49,7 @@ class OrderController extends Controller
      * @param Request $request
      * @param $order_id
      */
-    public function destroy(Request $request,$order_id)
+    public function destroy(Request $request,$order_id): void
     {
          self::delete_order($request,$order_id);
     }
